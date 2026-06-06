@@ -1,0 +1,107 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Laravel API",
+        "description": "API документация",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/",
+            "description": "Local server"
+        }
+    ],
+    "paths": {
+        "/api/message": {
+            "post": {
+                "tags": [
+                    "Message"
+                ],
+                "summary": "Сохранить сообщение в очередь",
+                "description": "Принимает channel и body, записывает в таблицу messages_queue",
+                "operationId": "105712d315c9d9b55511eaa750755ed7",
+                "requestBody": {
+                    "description": "Данные сообщения",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "channel",
+                                    "body"
+                                ],
+                                "properties": {
+                                    "channel": {
+                                        "type": "string",
+                                        "example": "email"
+                                    },
+                                    "body": {
+                                        "type": "string",
+                                        "example": "Hello World"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Сообщение сохранено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "channel": {
+                                            "type": "string",
+                                            "example": "email"
+                                        },
+                                        "body": {
+                                            "type": "string",
+                                            "example": "Hello World"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2026-06-06 12:00:00"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Ошибка валидации",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The channel field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Message",
+            "description": "Message"
+        }
+    ]
+}
