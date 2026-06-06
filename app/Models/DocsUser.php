@@ -21,7 +21,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class DocsUser extends Authenticatable implements FilamentUser
 {
-    private const MAX_FAILED_ATTEMPTS = 5;
+    private const int MAX_FAILED_ATTEMPTS = 5;
 
     protected $table = 'docs_users';
 
