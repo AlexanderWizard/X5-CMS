@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasName;
 use Filament\Panel;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -19,7 +20,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @method static \Illuminate\Database\Eloquent\Builder where(string $column, mixed $value)
  * @method static int         whereIn(string $column, array $values)
  */
-class DocsUser extends Authenticatable implements FilamentUser
+class DocsUser extends Authenticatable implements FilamentUser, HasName
 {
     private const int MAX_FAILED_ATTEMPTS = 5;
 
@@ -32,16 +33,17 @@ class DocsUser extends Authenticatable implements FilamentUser
         'password',
         'is_active',
         'failed_attempts',
+        'locale',
     ];
 
     protected $hidden = [
         'password',
     ];
 
-    // Filament использует 'email' по умолчанию — переопределяем на 'login'
-    public function getAuthIdentifierName(): string
+    // Filament отображает это имя в топ-баре
+    public function getFilamentName(): string
     {
-        return 'login';
+        return $this->login;
     }
 
     public function canAccessPanel(Panel $panel): bool

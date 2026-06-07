@@ -66,7 +66,7 @@ class Login extends BaseLogin
 
         $user->resetFailedAttempts();
 
-        auth('docs')->login($user);
+        auth('admin')->login($user);
 
         return app(LoginResponse::class);
     }

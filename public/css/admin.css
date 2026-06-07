@@ -1,0 +1,247 @@
+/* ============================================================
+   SIDEBAR — фон
+   ============================================================ */
+.fi-sidebar,
+.fi-main-sidebar {
+    background-color: #292929 !important;
+    border-right: none !important;
+}
+
+.fi-sidebar-header {
+    background-color: #222222 !important;
+    border-bottom: 1px solid #383838 !important;
+    padding: 0.75rem 1rem !important;
+}
+
+.fi-sidebar-nav {
+    background-color: #292929 !important;
+    padding: 0.25rem 0 !important;
+}
+
+.fi-sidebar-nav-groups {
+    padding: 0 0.25rem !important;
+}
+
+/* ============================================================
+   ГРУППЫ
+   ============================================================ */
+.fi-sidebar-group {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.fi-sidebar-group-btn {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.5rem 1.25rem 0.25rem !important;
+    cursor: pointer !important;
+    gap: 0.4rem !important;
+}
+
+.fi-sidebar-group-label {
+    flex: 1 !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    color: #888888 !important;
+}
+
+.fi-sidebar-group-collapse-btn {
+    color: #888888 !important;
+    width: 0.9rem !important;
+    height: 0.9rem !important;
+}
+
+.fi-sidebar-group-items {
+    padding: 0 !important;
+}
+
+/* ============================================================
+   ПУНКТЫ МЕНЮ
+   ============================================================ */
+.fi-sidebar-item {
+    margin: 0 !important;
+    padding: 0 0.75rem !important;
+}
+
+.fi-sidebar-item-btn {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.65rem !important;
+    width: 100% !important;
+    padding: 0.55rem 1rem !important;
+    border-radius: 0.3rem !important;
+    font-size: 0.84rem !important;
+    font-weight: 400 !important;
+    color: #d6d6d6 !important;
+    text-decoration: none !important;
+    transition: background 0.1s, color 0.1s !important;
+}
+
+.fi-sidebar-item-btn:hover {
+    background-color: rgba(255,255,255,0.08) !important;
+    color: #ffffff !important;
+}
+
+/* Активный пункт */
+.fi-sidebar-item.fi-active .fi-sidebar-item-btn {
+    background-color: rgba(255,255,255,0.12) !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
+}
+
+.fi-sidebar-item-icon {
+    width: 1rem !important;
+    height: 1rem !important;
+    flex-shrink: 0 !important;
+    color: inherit !important;
+    opacity: 0.75 !important;
+}
+
+.fi-sidebar-item-label {
+    color: inherit !important;
+    line-height: 1.25 !important;
+}
+
+/* Подпункты (sub-grouped) — с отступом, без иконок */
+.fi-sidebar-sub-group-items .fi-sidebar-item {
+    padding: 0 0.4rem 0 1.5rem !important;
+}
+
+.fi-sidebar-sub-group-items .fi-sidebar-item-btn {
+    font-size: 0.82rem !important;
+    color: #b0b0b0 !important;
+    padding: 0.3rem 0.6rem !important;
+}
+
+.fi-sidebar-sub-group-items .fi-sidebar-item-btn:hover {
+    background-color: rgba(255,255,255,0.07) !important;
+    color: #ffffff !important;
+}
+
+.fi-sidebar-sub-group-items .fi-sidebar-item.fi-active .fi-sidebar-item-btn {
+    background-color: rgba(255,255,255,0.11) !important;
+    color: #ffffff !important;
+}
+
+/* ============================================================
+   ЛОГОТИП / БРЕНД
+   ============================================================ */
+.fi-logo,
+.fi-sidebar-header a,
+.fi-sidebar-header span {
+    color: #ffffff !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+}
+
+/* ============================================================
+   ТОПБАР
+   ============================================================ */
+.fi-topbar {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07) !important;
+}
+
+/* ============================================================
+   КОНТЕНТ
+   ============================================================ */
+.fi-main {
+    background-color: #f3f4f6 !important;
+    padding-inline: 1.5rem !important;
+}
+
+@media (min-width: 64rem) {
+    .fi-main {
+        padding-inline: 1.5rem !important;
+    }
+}
+
+@media (min-width: 48rem) {
+    .fi-main {
+        padding-inline: 1.5rem !important;
+    }
+}
+
+/* Убрать большой отступ над хлебными крошками / заголовком */
+.fi-page-header-main-ctn {
+    padding-top: 1rem !important;
+    padding-bottom: 0.5rem !important;
+    gap: 0.5rem !important;
+}
+
+/* Убрать большой gap между заголовком и виджетами/таблицей */
+.fi-page-content {
+    gap: 0.75rem !important;
+    row-gap: 0.75rem !important;
+}
+
+.fi-page-header h1 {
+    font-size: 1.4rem !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+}
+
+/* ============================================================
+   ВИДЖЕТЫ STATS
+   ============================================================ */
+.fi-wi-stats-overview-stat {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
+
+.fi-wi-stats-overview-stat-label {
+    font-size: 0.8rem !important;
+    color: #6b7280 !important;
+}
+
+.fi-wi-stats-overview-stat-value {
+    font-size: 1.75rem !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+}
+
+/* ============================================================
+   ТАБЛИЦА
+   ============================================================ */
+.fi-ta-ctn {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+    overflow: hidden !important;
+}
+
+.fi-ta-header-cell {
+    background-color: #f9fafb !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    color: #4b5563 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+.fi-ta-row td {
+    font-size: 0.83rem !important;
+    color: #1f2937 !important;
+    border-bottom: 1px solid #f3f4f6 !important;
+}
+
+.fi-ta-row:hover td {
+    background-color: #f9fafb !important;
+}
+
+/* ============================================================
+   СЕКЦИИ
+   ============================================================ */
+.fi-section {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
