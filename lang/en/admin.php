@@ -33,6 +33,8 @@ return [
     'users.col.login'      => 'Login',
     'users.col.active'     => 'Active',
     'users.col.attempts'   => 'Attempts',
+    'users.col.created_at'    => 'Created',
+    'users.col.last_login_at' => 'Last login',
     'users.field.login'    => 'Login',
     'users.field.password' => 'Password',
     'users.field.password_hint' => 'Leave blank to keep current password',
@@ -44,5 +46,6 @@ return [
 
     // Profile
     'profile.locale'       => 'Interface language',
+    'profile.timezone'     => 'Timezone',
 
 ];

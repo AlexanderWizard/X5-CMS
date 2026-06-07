@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Filament\Support\Facades\FilamentTimezone;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
@@ -27,9 +28,25 @@ class AppServiceProvider extends ServiceProvider
         // Применяем локаль пользователя как только auth будет доступен
         $this->callAfterResolving('auth', function () {
             $user = auth('admin')->user();
-            if ($user && in_array($user->locale, ['ru', 'en'])) {
+
+            if (!$user) {
+                return;
+            }
+
+            if (in_array($user->locale, ['ru', 'en'])) {
                 App::setLocale($user->locale);
             }
+        });
+
+        // Часовой пояс для всех дат Filament — через FilamentTimezone
+        FilamentTimezone::set(function () {
+            $user = auth('admin')->user();
+
+            if ($user && !empty($user->timezone) && in_array($user->timezone, timezone_identifiers_list())) {
+                return $user->timezone;
+            }
+
+            return config('app.timezone', 'UTC');
         });
     }
 }

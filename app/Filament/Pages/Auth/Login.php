@@ -66,6 +66,9 @@ class Login extends BaseLogin
 
         $user->resetFailedAttempts();
 
+        $user->last_login_at = now('UTC');
+        $user->save();
+
         auth('admin')->login($user);
 
         return app(LoginResponse::class);

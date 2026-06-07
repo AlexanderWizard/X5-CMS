@@ -30,6 +30,13 @@ class User extends Authenticatable implements FilamentUser, HasName
         'is_active',
         'failed_attempts',
         'locale',
+        'timezone',
+        'last_login_at',
+    ];
+
+    protected $casts = [
+        'created_at'    => 'datetime',
+        'last_login_at' => 'datetime',
     ];
 
     protected $hidden = [

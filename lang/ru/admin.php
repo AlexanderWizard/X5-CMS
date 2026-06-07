@@ -33,6 +33,8 @@ return [
     'users.col.login'      => 'Логин',
     'users.col.active'     => 'Активен',
     'users.col.attempts'   => 'Попыток',
+    'users.col.created_at'    => 'Создан',
+    'users.col.last_login_at' => 'Последний вход',
     'users.field.login'    => 'Логин',
     'users.field.password' => 'Пароль',
     'users.field.password_hint' => 'Оставьте пустым, чтобы не менять',
@@ -44,5 +46,6 @@ return [
 
     // Profile
     'profile.locale'       => 'Язык интерфейса',
+    'profile.timezone'     => 'Часовой пояс',
 
 ];

@@ -96,6 +96,17 @@ class UserResource extends Resource
                     ->badge()
                     ->color(fn ($state) => $state >= 5 ? 'danger' : ($state > 0 ? 'warning' : 'success'))
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label(__('admin.users.col.created_at'))
+                    ->dateTime('d.m.Y H:i')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('last_login_at')
+                    ->label(__('admin.users.col.last_login_at'))
+                    ->dateTime('d.m.Y H:i')
+                    ->placeholder('—')
+                    ->sortable(),
             ])
             ->defaultSort('id', 'asc')
             ->recordUrl(fn (User $record) => static::getUrl('edit', ['record' => $record]))
