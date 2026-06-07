@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Modules\Api\Filament\Resources;
 
-use App\Filament\Resources\MessageQueueResource\Pages;
-use App\Models\MessageQueue;
+use App\Modules\Api\Filament\Resources\MessageQueueResource\Pages;
+use App\Modules\Api\Models\MessageQueue;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Tables;

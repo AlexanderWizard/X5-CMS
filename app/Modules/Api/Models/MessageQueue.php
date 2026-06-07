@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\Api\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -8,11 +8,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int    $id
  * @property string $channel
  * @property string $body
+ * @property int    $is_processed
  * @property string $created_at
- *
- * @method static static create(array $attributes = [])
- * @method static \Illuminate\Database\Eloquent\Builder where(string $column, mixed $value)
- * @method static \Illuminate\Database\Eloquent\Builder whereIn(string $column, array $values)
  */
 class MessageQueue extends Model
 {

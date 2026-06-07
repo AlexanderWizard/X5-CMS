@@ -44,7 +44,7 @@ return [
         ],
         'admin' => [
             'driver' => 'session',
-            'provider' => 'docs_users',
+            'provider' => 'system_users',
         ],
     ],
 
@@ -70,9 +70,9 @@ return [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
         ],
-        'docs_users' => [
+        'system_users' => [
             'driver' => 'eloquent',
-            'model' => \App\Models\DocsUser::class,
+            'model' => \App\Modules\System\Models\User::class,
         ],
 
         // 'users' => [

@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages\Auth;
 
-use App\Models\DocsUser;
+use App\Modules\System\Models\User as SystemUser;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Schemas\Schema;
@@ -34,7 +34,7 @@ class Login extends BaseLogin
     {
         $data = $this->form->getState();
 
-        $user = DocsUser::where('login', $data['login'])->first();
+        $user = SystemUser::where('login', $data['login'])->first();
 
         if (!$user) {
             throw ValidationException::withMessages([

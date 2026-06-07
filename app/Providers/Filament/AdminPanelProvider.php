@@ -40,9 +40,6 @@ class AdminPanelProvider extends PanelProvider
             ->colors(['primary' => Color::Orange])
             ->maxContentWidth(Width::Full)
 
-            // После логина → список очереди
-            ->homeUrl('/admin/api/messages')
-
             // Сайдбар
             ->sidebarCollapsibleOnDesktop()
             ->collapsibleNavigationGroups()
@@ -63,10 +60,12 @@ class AdminPanelProvider extends PanelProvider
                     ->sort(0),
             ])
 
-            // Авто-обнаружение ресурсов, страниц, виджетов
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
+            // Авто-обнаружение ресурсов, страниц, виджетов (модульная архитектура)
+            ->discoverResources(in: app_path('Modules/Api/Filament/Resources'), for: 'App\Modules\Api\Filament\Resources')
+            ->discoverResources(in: app_path('Modules/System/Filament/Resources'), for: 'App\Modules\System\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
+            ->discoverWidgets(in: app_path('Modules/Api/Filament/Widgets'), for: 'App\Modules\Api\Filament\Widgets')
+            ->discoverWidgets(in: app_path('Modules/System/Filament/Widgets'), for: 'App\Modules\System\Filament\Widgets')
 
             ->middleware([
                 EncryptCookies::class,

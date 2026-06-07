@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MessageQueue;
+use App\Modules\Api\Models\MessageQueue;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;

@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\DocsUserResource\Pages;
+namespace App\Modules\System\Filament\Resources\UserResource\Pages;
 
-use App\Filament\Resources\DocsUserResource;
+use App\Modules\System\Filament\Resources\UserResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditDocsUser extends EditRecord
+class EditUser extends EditRecord
 {
-    protected static string $resource = DocsUserResource::class;
+    protected static string $resource = UserResource::class;
 
     protected function getHeaderActions(): array
     {

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Modules\System\Filament\Resources;
 
-use App\Filament\Resources\DocsUserResource\Pages;
-use App\Models\DocsUser;
+use App\Modules\System\Filament\Resources\UserResource\Pages;
+use App\Modules\System\Models\User;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms;
@@ -13,9 +13,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
 
-class DocsUserResource extends Resource
+class UserResource extends Resource
 {
-    protected static ?string $model = DocsUser::class;
+    protected static ?string $model = User::class;
 
     protected static string|BackedEnum|null $navigationIcon  = 'heroicon-o-users';
     protected static string|\UnitEnum|null  $navigationGroup = 'System';
@@ -98,15 +98,15 @@ class DocsUserResource extends Resource
                     ->sortable(),
             ])
             ->defaultSort('id', 'asc')
-            ->recordUrl(fn (DocsUser $record) => static::getUrl('edit', ['record' => $record]))
+            ->recordUrl(fn (User $record) => static::getUrl('edit', ['record' => $record]))
             ->actions([
                 Action::make('reset')
                     ->label(__('admin.users.action.unlock'))
                     ->icon('heroicon-o-lock-open')
                     ->color('warning')
-                    ->visible(fn (DocsUser $record) => !$record->isActive() || $record->failed_attempts > 0)
+                    ->visible(fn (User $record) => !$record->isActive() || $record->failed_attempts > 0)
                     ->requiresConfirmation()
-                    ->action(fn (DocsUser $record) => $record->update([
+                    ->action(fn (User $record) => $record->update([
                         'is_active'       => 1,
                         'failed_attempts' => 0,
                     ])),
@@ -116,9 +116,9 @@ class DocsUserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListDocsUsers::route('/'),
-            'create' => Pages\CreateDocsUser::route('/create'),
-            'edit'   => Pages\EditDocsUser::route('/{record}/edit'),
+            'index'  => Pages\ListUsers::route('/'),
+            'create' => Pages\CreateUser::route('/create'),
+            'edit'   => Pages\EditUser::route('/{record}/edit'),
         ];
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\MessageQueue;
+use App\Modules\Api\Models\MessageQueue;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;

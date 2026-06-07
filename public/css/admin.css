@@ -187,11 +187,45 @@
 /* ============================================================
    ВИДЖЕТЫ STATS
    ============================================================ */
+
+/* Обёртка виджета — убираем фон и рамку */
+.fi-wi-stats-overview {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+/* Внутренний контейнер fi-sc-fused-group:
+   убираем ring (общую рамку) и divide-x (вертикальные разделители) */
+.fi-wi-stats-overview .fi-sc-fused-group > .fi-sc,
+.fi-wi-stats-overview .fi-sc-fused-group .fi-sc {
+    box-shadow: none !important;
+    --tw-ring-shadow: none !important;
+    outline: none !important;
+}
+
+/* Убираем divide-x — вертикальные линии между карточками.
+   Tailwind divide-x использует > :not([hidden]) ~ :not([hidden]) */
+.fi-wi-stats-overview .fi-sc > :not([hidden]) ~ :not([hidden]) {
+    border-left-width: 0 !important;
+    border-right-width: 0 !important;
+}
+
+/* Добавляем gap между карточками вместо разделителей */
+.fi-wi-stats-overview .fi-sc.fi-grid-cols,
+.fi-wi-stats-overview .fi-sc[class*="fi-grid-cols"] {
+    gap: 1rem !important;
+    background: transparent !important;
+}
+
+/* Каждая карточка — отдельный белый блок */
 .fi-wi-stats-overview-stat {
     background: #ffffff !important;
     border: 1px solid #e5e7eb !important;
     border-radius: 0.5rem !important;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+    ring: none !important;
 }
 
 .fi-wi-stats-overview-stat-label {
@@ -239,9 +273,17 @@
 /* ============================================================
    СЕКЦИИ
    ============================================================ */
-.fi-section {
+/* Стиль только для contained-секций (формы, карточки), не для not-contained (виджеты) */
+.fi-section:not(.fi-section-not-contained) {
     background: #ffffff !important;
     border: 1px solid #e5e7eb !important;
     border-radius: 0.5rem !important;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
+
+/* not-contained (виджет статистики) — прозрачный фон, без рамки */
+.fi-section.fi-section-not-contained {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }

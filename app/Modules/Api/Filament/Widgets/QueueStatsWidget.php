@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Widgets;
+namespace App\Modules\Api\Filament\Widgets;
 
-use App\Models\MessageQueue;
+use App\Modules\Api\Models\MessageQueue;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 

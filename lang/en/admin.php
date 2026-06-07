@@ -3,6 +3,7 @@
 return [
 
     // Navigation
+    'nav.dashboard'        => 'Dashboard',
     'nav.documentation'    => 'Documentation',
     'nav.message_queue'    => 'Message Queue',
 

@@ -3,6 +3,7 @@
 return [
 
     // Navigation
+    'nav.dashboard'        => 'Главная',
     'nav.documentation'    => 'Документация',
     'nav.message_queue'    => 'Очередь сообщений',
 

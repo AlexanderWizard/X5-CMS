@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\System\Models;
 
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
@@ -13,18 +13,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string $password
  * @property int    $is_active
  * @property int    $failed_attempts
+ * @property string $locale
  * @property string $created_at
- *
- * @method static static|null first()
- * @method static static      updateOrCreate(array $attributes, array $values = [])
- * @method static \Illuminate\Database\Eloquent\Builder where(string $column, mixed $value)
- * @method static int         whereIn(string $column, array $values)
  */
-class DocsUser extends Authenticatable implements FilamentUser, HasName
+class User extends Authenticatable implements FilamentUser, HasName
 {
     private const int MAX_FAILED_ATTEMPTS = 5;
 
-    protected $table = 'docs_users';
+    protected $table = 'users';
 
     public $timestamps = false;
 
@@ -40,7 +36,6 @@ class DocsUser extends Authenticatable implements FilamentUser, HasName
         'password',
     ];
 
-    // Filament отображает это имя в топ-баре
     public function getFilamentName(): string
     {
         return $this->login;

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Resources\MessageQueueResource\Pages;
+namespace App\Modules\Api\Filament\Resources\MessageQueueResource\Pages;
 
-use App\Filament\Resources\MessageQueueResource;
-use App\Filament\Widgets\QueueStatsWidget;
+use App\Modules\Api\Filament\Resources\MessageQueueResource;
+use App\Modules\Api\Filament\Widgets\QueueStatsWidget;
 use Filament\Resources\Pages\ListRecords;
 
 class ListMessageQueues extends ListRecords

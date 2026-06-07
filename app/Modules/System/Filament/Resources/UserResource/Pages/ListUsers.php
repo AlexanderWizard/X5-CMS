@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\DocsUserResource\Pages;
+namespace App\Modules\System\Filament\Resources\UserResource\Pages;
 
-use App\Filament\Resources\DocsUserResource;
+use App\Modules\System\Filament\Resources\UserResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
-class ListDocsUsers extends ListRecords
+class ListUsers extends ListRecords
 {
-    protected static string $resource = DocsUserResource::class;
+    protected static string $resource = UserResource::class;
 
     protected function getHeaderActions(): array
     {
