@@ -44,8 +44,28 @@ return [
     'users.action.add'     => 'Добавить пользователя',
     'users.action.unlock'  => 'Разблокировать',
 
+    // Role resource
+    'roles.model'          => 'Роль',
+    'roles.model_plural'   => 'Роли',
+    'roles.nav'            => 'Roles',
+    'roles.col.id'         => 'ID',
+    'roles.col.name'       => 'Название',
+    'roles.col.description' => 'Описание',
+    'roles.col.users'      => 'Пользователей',
+    'roles.col.created_at' => 'Создана',
+    'roles.field.name'        => 'Название',
+    'roles.field.description' => 'Описание',
+    'roles.field.users'       => 'Пользователи',
+    'roles.field.users_hint'  => 'Выберите пользователей, которым назначена эта роль',
+    'roles.action.add'        => 'Добавить роль',
+
     // Profile
     'profile.locale'       => 'Язык интерфейса',
     'profile.timezone'     => 'Часовой пояс',
+
+    // 404
+    'notfound.title'       => 'Страница не найдена',
+    'notfound.text'        => 'Возможно, она была перемещена, удалена или никогда не существовала.',
+    'notfound.home'        => 'Вернуться на главную',
 
 ];

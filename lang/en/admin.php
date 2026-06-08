@@ -44,8 +44,28 @@ return [
     'users.action.add'     => 'Add user',
     'users.action.unlock'  => 'Unblock',
 
+    // Role resource
+    'roles.model'          => 'Role',
+    'roles.model_plural'   => 'Roles',
+    'roles.nav'            => 'Roles',
+    'roles.col.id'         => 'ID',
+    'roles.col.name'       => 'Name',
+    'roles.col.description' => 'Description',
+    'roles.col.users'      => 'Users',
+    'roles.col.created_at' => 'Created',
+    'roles.field.name'        => 'Name',
+    'roles.field.description' => 'Description',
+    'roles.field.users'       => 'Users',
+    'roles.field.users_hint'  => 'Select the users assigned to this role',
+    'roles.action.add'        => 'Add role',
+
     // Profile
     'profile.locale'       => 'Interface language',
     'profile.timezone'     => 'Timezone',
+
+    // 404
+    'notfound.title'       => 'Page not found',
+    'notfound.text'        => 'It may have been moved, deleted, or never existed.',
+    'notfound.home'        => 'Back to home',
 
 ];

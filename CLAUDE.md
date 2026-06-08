@@ -92,11 +92,14 @@ app/Modules/
 │           └── QueueStatsWidget.php  # Виджет: всего / не обработано / обработано
 └── System/
     ├── Models/
-    │   └── User.php                  # Системный пользователь (таблица users)
+    │   ├── User.php                  # Системный пользователь (таблица users)
+    │   └── Role.php                  # Роль (таблица roles), belongsToMany users
     └── Filament/
         └── Resources/
-            └── UserResource.php      # CRUD пользователей
-            └── UserResource/Pages/{List,Create,Edit}User.php
+            ├── UserResource.php      # CRUD пользователей
+            │   └── UserResource/Pages/{List,Create,Edit}User.php
+            └── RoleResource.php      # CRUD ролей (multi-select пользователей)
+                └── RoleResource/Pages/{List,Create,Edit}Role.php
 ```
 
 PSR-4 namespace: `App\Modules\*` — автоматически покрывается `"App\\": "app/"` в `composer.json`.
@@ -164,6 +167,38 @@ Builder::defaultStringLength(191);
 - `getFilamentName()` → возвращает `$this->login`
 - `canAccessPanel()` проверяет `is_active`
 - Блокировка после 5 неудачных попыток входа (`MAX_FAILED_ATTEMPTS = 5`)
+- `roles()` — belongsToMany через `role_user`
+
+### Таблица `roles` и сводная `role_user`
+
+`roles`:
+
+| Колонка     | Тип          | Default           | Описание           |
+|-------------|--------------|-------------------|--------------------|
+| id          | bigint PK    | auto_increment    | первичный ключ     |
+| name        | varchar(191) | —                 | название (unique)  |
+| description | varchar(255) | NULL              | описание           |
+| created_at  | timestamp    | CURRENT_TIMESTAMP | дата создания      |
+
+`role_user` (pivot, many-to-many):
+
+| Колонка | Тип       | Описание                                    |
+|---------|-----------|---------------------------------------------|
+| id      | bigint PK | первичный ключ                              |
+| role_id | bigint FK | → roles.id (ON DELETE CASCADE)              |
+| user_id | bigint FK | → users.id (ON DELETE CASCADE)              |
+| —       | UNIQUE    | пара (role_id, user_id) уникальна           |
+
+Модель: `App\Modules\System\Models\Role`
+- `$timestamps = false`, `$fillable = ['name', 'description']`
+- `users()` — belongsToMany через `role_user`
+
+Ресурс `RoleResource`: множественный выбор пользователей при редактировании роли —
+```php
+Forms\Components\Select::make('users')
+    ->relationship('users', 'login')->multiple()->preload()->searchable()
+```
+Filament синхронизирует pivot `role_user` автоматически (на create и edit).
 
 ---
 
@@ -196,8 +231,14 @@ protected string $view = '...';  // НЕ static
    📋 Очередь сообщений → /admin/api/messages
 
 ▼ System
-   👥 Users             → /admin/system/users
+   👥 Users             → /admin/system/users   (sort 1)
+   🛡 Roles             → /admin/system/roles   (sort 2)
 ```
+
+Корни модулей без index-маршрута (`/admin/api`, `/admin/system`) рендерят страницу 404
+внутри лейаута админки. Базовый абстрактный класс `App\Filament\Pages\NotFoundPage`,
+конкретные наследники задают только `$slug` (`ApiNotFoundPage`, `SystemNotFoundPage`).
+Шаблон: `resources/views/filament/pages/not-found.blade.php`.
 
 ---
 

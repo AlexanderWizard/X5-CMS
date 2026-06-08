@@ -5,6 +5,7 @@ namespace App\Modules\System\Models;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
@@ -42,6 +43,14 @@ class User extends Authenticatable implements FilamentUser, HasName
     protected $hidden = [
         'password',
     ];
+
+    /**
+     * Роли, назначенные пользователю.
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
+    }
 
     public function getFilamentName(): string
     {
