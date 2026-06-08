@@ -4,6 +4,7 @@ namespace App\Modules\Api\Filament\Resources;
 
 use App\Modules\Api\Filament\Resources\MessageQueueResource\Pages;
 use App\Modules\Api\Models\MessageQueue;
+use App\Modules\System\Filament\Concerns\AuthorizesWithPermissions;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -11,7 +12,11 @@ use Filament\Tables\Table;
 
 class MessageQueueResource extends Resource
 {
+    use AuthorizesWithPermissions;
+
     protected static ?string $model = MessageQueue::class;
+
+    protected static string $permissionPrefix = 'api.messages';
 
     protected static string|BackedEnum|null $navigationIcon  = 'heroicon-o-queue-list';
     protected static string|\UnitEnum|null  $navigationGroup = 'API';

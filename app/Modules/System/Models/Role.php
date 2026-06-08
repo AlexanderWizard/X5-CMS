@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
- * @property int    $id
- * @property string $name
- * @property string $description
- * @property string $created_at
+ * @property int         $id
+ * @property string      $name
+ * @property string      $description
+ * @property array       $permissions
+ * @property string      $created_at
  */
 class Role extends Model
 {
@@ -20,11 +21,21 @@ class Role extends Model
     protected $fillable = [
         'name',
         'description',
+        'permissions',
     ];
 
     protected $casts = [
-        'created_at' => 'datetime',
+        'permissions' => 'array',
+        'created_at'  => 'datetime',
     ];
+
+    /**
+     * Есть ли у роли указанное право (ключ вида "api.messages.view").
+     */
+    public function hasPermission(string $permission): bool
+    {
+        return in_array($permission, $this->permissions ?? [], true);
+    }
 
     /**
      * Пользователи, которым назначена эта роль.

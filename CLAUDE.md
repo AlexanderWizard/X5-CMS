@@ -155,6 +155,7 @@ Builder::defaultStringLength(191);
 | login           | varchar(191) | —                 | логин (уникальный)           |
 | password        | varchar(255) | —                 | bcrypt-хэш                   |
 | is_active       | tinyint(1)   | 1                 | 1=активен, 0=заблокирован    |
+| super_user      | tinyint(1)   | 0                 | 1=полный доступ ко всему     |
 | failed_attempts | int          | 0                 | счётчик неудачных попыток    |
 | locale          | varchar(5)   | ru                | язык интерфейса (ru/en)      |
 | timezone        | varchar(64)  | UTC               | часовой пояс (IANA)          |
@@ -200,6 +201,44 @@ Forms\Components\Select::make('users')
 ```
 Filament синхронизирует pivot `role_user` автоматически (на create и edit).
 
+### Права доступа (permissions)
+
+- Колонка `roles.permissions` (TEXT, каст `array`) хранит плоский список ключей вида
+  `"{module}.{resource}.{ability}"`, напр. `api.messages.view`, `system.users.update`.
+- Реестр дерева: `App\Modules\System\Support\Permissions`
+  - `tree()` — модуль → ресурсы; `ABILITIES = [view, create, update, delete]`
+  - `all()` — все валидные ключи; `abilityOptions()`, `groupKey()`
+  - **добавить ресурс в дерево прав = одна строка в `tree()`**
+- Форма роли: секция на модуль (collapsible) + `CheckboxList` на ресурс.
+  Конвертация плоский ↔ сгруппированный — трейт
+  `RoleResource\Concerns\HandlesPermissions` (mutate-хуки Create/Edit, с валидацией по `Permissions::all()`).
+
+### Энфорсмент (применение прав)
+
+- `User`:
+  - `roles()` belongsToMany; `allPermissions()` — объединение прав всех ролей (кэш на запрос)
+  - `hasPermissionTo($key)` — проверка (true сразу, если `isSuperAdmin()`)
+  - `isSuperAdmin()` — **флаг `users.super_user`**: полный доступ ко всему в обход ролей/прав.
+    Обычный пользователь без ролей доступа не имеет. Существующие на момент ввода прав
+    пользователи помечены `super_user=1` миграцией (страховка от блокировки).
+- Трейт `App\Modules\System\Filament\Concerns\AuthorizesWithPermissions`:
+  ресурс объявляет `protected static string $permissionPrefix = '...'`, трейт переопределяет
+  `canViewAny/canView/canCreate/canEdit/canDelete/canDeleteAny`.
+  - `canViewAny=false` скрывает ресурс из меню (пустые группы Filament прячет сам)
+- Подключён в `MessageQueueResource` (`api.messages`), `UserResource` (`system.users`),
+  `RoleResource` (`system.roles`), `FirewallResource` (`system.firewall`).
+
+### Firewall (IP-allowlist)
+
+- Таблица `firewall_rules` (ip_address, description, is_active, created_at)
+- Модель `App\Modules\System\Models\FirewallRule`:
+  - `isAllowed($ip)` — **пустой список активных правил = доступ открыт** (защита от блокировки),
+    иначе IP должен совпасть с правилом
+  - `ipMatches($ip, $rule)` — точный IP или CIDR (IPv4/IPv6); `isValidIpOrCidr()` — валидация
+- Middleware `App\Http\Middleware\CheckFirewall` — в `->middleware([...])` панели (первым,
+  до сессии/авторизации; блокирует даже страницу логина). При отказе `abort(403)`.
+- Ресурс `FirewallResource` (System, sort 3). Поле IP валидируется через `isValidIpOrCidr`.
+
 ---
 
 ## Filament — особенности этой версии (v4 / PHP 8.3)
@@ -231,8 +270,9 @@ protected string $view = '...';  // НЕ static
    📋 Очередь сообщений → /admin/api/messages
 
 ▼ System
-   👥 Users             → /admin/system/users   (sort 1)
-   🛡 Roles             → /admin/system/roles   (sort 2)
+   👥 Users             → /admin/system/users    (sort 1)
+   🛡 Roles             → /admin/system/roles    (sort 2)
+   🧱 Firewall          → /admin/system/firewall (sort 3)
 ```
 
 Корни модулей без index-маршрута (`/admin/api`, `/admin/system`) рендерят страницу 404

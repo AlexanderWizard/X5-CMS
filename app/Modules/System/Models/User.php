@@ -13,9 +13,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string $login
  * @property string $password
  * @property int    $is_active
+ * @property int    $super_user
  * @property int    $failed_attempts
  * @property string $locale
+ * @property string $timezone
  * @property string $created_at
+ * @property string $last_login_at
  */
 class User extends Authenticatable implements FilamentUser, HasName
 {
@@ -29,6 +32,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         'login',
         'password',
         'is_active',
+        'super_user',
         'failed_attempts',
         'locale',
         'timezone',
@@ -36,6 +40,8 @@ class User extends Authenticatable implements FilamentUser, HasName
     ];
 
     protected $casts = [
+        'is_active'     => 'boolean',
+        'super_user'    => 'boolean',
         'created_at'    => 'datetime',
         'last_login_at' => 'datetime',
     ];
@@ -45,11 +51,53 @@ class User extends Authenticatable implements FilamentUser, HasName
     ];
 
     /**
+     * Кэш агрегированных прав на время запроса.
+     *
+     * @var array<int, string>|null
+     */
+    protected ?array $cachedPermissions = null;
+
+    /**
      * Роли, назначенные пользователю.
      */
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
+    }
+
+    /**
+     * Суперпользователь — флаг `super_user`. Имеет приоритет и полный доступ ко всему,
+     * независимо от назначенных ролей и прав.
+     */
+    public function isSuperAdmin(): bool
+    {
+        return (bool) $this->super_user;
+    }
+
+    /**
+     * Все права пользователя (объединение прав всех его ролей).
+     *
+     * @return array<int, string>
+     */
+    public function allPermissions(): array
+    {
+        return $this->cachedPermissions ??= $this->roles
+            ->flatMap(fn (Role $role) => $role->permissions ?? [])
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Есть ли у пользователя право (ключ вида "api.messages.view").
+     */
+    public function hasPermissionTo(string $permission): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return in_array($permission, $this->allPermissions(), true);
     }
 
     public function getFilamentName(): string

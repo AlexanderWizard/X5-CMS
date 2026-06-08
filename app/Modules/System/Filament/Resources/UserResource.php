@@ -2,6 +2,7 @@
 
 namespace App\Modules\System\Filament\Resources;
 
+use App\Modules\System\Filament\Concerns\AuthorizesWithPermissions;
 use App\Modules\System\Filament\Resources\UserResource\Pages;
 use App\Modules\System\Models\User;
 use BackedEnum;
@@ -15,7 +16,11 @@ use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
+    use AuthorizesWithPermissions;
+
     protected static ?string $model = User::class;
+
+    protected static string $permissionPrefix = 'system.users';
 
     protected static string|BackedEnum|null $navigationIcon  = 'heroicon-o-users';
     protected static string|\UnitEnum|null  $navigationGroup = 'System';
@@ -60,6 +65,12 @@ class UserResource extends Resource
                 ->default(true)
                 ->inline(false),
 
+            Forms\Components\Toggle::make('super_user')
+                ->label(__('admin.users.field.super_user'))
+                ->helperText(__('admin.users.field.super_user_hint'))
+                ->default(false)
+                ->inline(false),
+
             Forms\Components\TextInput::make('failed_attempts')
                 ->label(__('admin.users.field.attempts'))
                 ->numeric()
@@ -91,6 +102,21 @@ class UserResource extends Resource
                     ->falseColor('danger')
                     ->sortable(),
 
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->label(__('admin.users.col.roles'))
+                    ->badge()
+                    ->color('primary')
+                    ->placeholder('—'),
+
+                Tables\Columns\IconColumn::make('super_user')
+                    ->label(__('admin.users.col.super_user'))
+                    ->boolean()
+                    ->trueIcon('heroicon-o-shield-check')
+                    ->falseIcon('heroicon-o-minus')
+                    ->trueColor('warning')
+                    ->falseColor('gray')
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('failed_attempts')
                     ->label(__('admin.users.col.attempts'))
                     ->badge()
@@ -115,7 +141,8 @@ class UserResource extends Resource
                     ->label(__('admin.users.action.unlock'))
                     ->icon('heroicon-o-lock-open')
                     ->color('warning')
-                    ->visible(fn (User $record) => !$record->isActive() || $record->failed_attempts > 0)
+                    ->visible(fn (User $record) => static::canEdit($record)
+                        && (!$record->isActive() || $record->failed_attempts > 0))
                     ->requiresConfirmation()
                     ->action(fn (User $record) => $record->update([
                         'is_active'       => 1,
