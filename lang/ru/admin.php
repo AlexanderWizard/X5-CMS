@@ -83,6 +83,22 @@ return [
     'firewall.invalid'           => 'Некорректный IP-адрес или CIDR-подсеть.',
     'firewall.denied'            => 'Доступ запрещён: ваш IP-адрес не в списке разрешённых.',
 
+    // Action log resource
+    'actions.model'        => 'Действие',
+    'actions.model_plural' => 'Журнал действий',
+    'actions.nav'          => 'Actions',
+    'actions.col.created_at'  => 'Время',
+    'actions.col.user'        => 'Пользователь',
+    'actions.col.event'       => 'Действие',
+    'actions.col.subject'     => 'Раздел',
+    'actions.col.subject_id'  => 'ID записи',
+    'actions.col.details'     => 'Детали',
+    'actions.col.ip'          => 'IP-адрес',
+    'actions.event.created' => 'Создание',
+    'actions.event.updated' => 'Изменение',
+    'actions.event.deleted' => 'Удаление',
+    'actions.event.login'   => 'Вход',
+
     // Permissions tree
     'permissions.heading'       => 'Права доступа',
     'permissions.hint'          => 'Отметьте права по модулям и ресурсам админ-панели',

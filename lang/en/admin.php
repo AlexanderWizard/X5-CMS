@@ -83,6 +83,22 @@ return [
     'firewall.invalid'           => 'Invalid IP address or CIDR subnet.',
     'firewall.denied'            => 'Access denied: your IP address is not allowed.',
 
+    // Action log resource
+    'actions.model'        => 'Action',
+    'actions.model_plural' => 'Action log',
+    'actions.nav'          => 'Actions',
+    'actions.col.created_at'  => 'Time',
+    'actions.col.user'        => 'User',
+    'actions.col.event'       => 'Action',
+    'actions.col.subject'     => 'Section',
+    'actions.col.subject_id'  => 'Record ID',
+    'actions.col.details'     => 'Details',
+    'actions.col.ip'          => 'IP address',
+    'actions.event.created' => 'Created',
+    'actions.event.updated' => 'Updated',
+    'actions.event.deleted' => 'Deleted',
+    'actions.event.login'   => 'Login',
+
     // Permissions tree
     'permissions.heading'       => 'Permissions',
     'permissions.hint'          => 'Select permissions per module and admin panel resource',

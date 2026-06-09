@@ -2,6 +2,7 @@
 
 namespace App\Modules\System\Models;
 
+use App\Modules\System\Support\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -15,6 +16,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class FirewallRule extends Model
 {
+    use LogsActivity;
+
     protected $table = 'firewall_rules';
 
     public $timestamps = false;

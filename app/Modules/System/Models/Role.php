@@ -2,6 +2,7 @@
 
 namespace App\Modules\System\Models;
 
+use App\Modules\System\Support\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -14,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class Role extends Model
 {
+    use LogsActivity;
+
     protected $table = 'roles';
 
     public $timestamps = false;

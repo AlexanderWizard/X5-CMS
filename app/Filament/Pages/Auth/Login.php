@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages\Auth;
 
+use App\Modules\System\Models\ActionLog;
 use App\Modules\System\Models\User as SystemUser;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Auth\Pages\Login as BaseLogin;
@@ -68,6 +69,8 @@ class Login extends BaseLogin
 
         $user->last_login_at = now('UTC');
         $user->save();
+
+        ActionLog::log('login', $user, $user);
 
         auth('admin')->login($user);
 

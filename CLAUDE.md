@@ -239,6 +239,22 @@ Filament синхронизирует pivot `role_user` автоматическ
   до сессии/авторизации; блокирует даже страницу логина). При отказе `abort(403)`.
 - Ресурс `FirewallResource` (System, sort 3). Поле IP валидируется через `isValidIpOrCidr`.
 
+### Журнал действий (Actions / audit log)
+
+- Таблица `action_logs` (user_id, user_login, event, subject_type, subject_label, subject_id,
+  properties JSON, ip_address, created_at)
+- Модель `App\Modules\System\Models\ActionLog`:
+  - `log($event, ?$subject, ?$actor, ?$properties)` — пишет запись; **только если есть
+    авторизованный админ** (actor или `auth('admin')->user()`), иначе пропускает
+    (действия API/крона не логируются)
+  - `labelFor($model)` — человекочитаемое имя раздела по классу модели
+- Трейт `App\Modules\System\Support\LogsActivity` — `use` в модели вешает события
+  `created/updated/deleted` → `ActionLog::log(...)` (для updated пишет изменённые поля).
+  Подключён: `User`, `Role`, `FirewallRule`.
+- Событие `login` пишется явно в `Login::authenticate()`.
+- Ресурс `ActionLogResource` (System, sort 4) — **read-only** (`canCreate/Edit/Delete=false`),
+  фильтры по событию и пользователю. permissionPrefix `system.actions`.
+
 ---
 
 ## Filament — особенности этой версии (v4 / PHP 8.3)
@@ -273,6 +289,7 @@ protected string $view = '...';  // НЕ static
    👥 Users             → /admin/system/users    (sort 1)
    🛡 Roles             → /admin/system/roles    (sort 2)
    🧱 Firewall          → /admin/system/firewall (sort 3)
+   📋 Actions           → /admin/system/actions  (sort 4, журнал, read-only)
 ```
 
 Корни модулей без index-маршрута (`/admin/api`, `/admin/system`) рендерят страницу 404

@@ -41,6 +41,9 @@ class AdminPanelProvider extends PanelProvider
             ->colors(['primary' => Color::Orange])
             ->maxContentWidth(Width::Full)
 
+            // SPA-навигация (HTML5 History / wire:navigate) — без полной перезагрузки страниц
+            ->spa()
+
             // Сайдбар
             ->sidebarCollapsibleOnDesktop()
             ->collapsibleNavigationGroups()

@@ -2,6 +2,7 @@
 
 namespace App\Modules\System\Models;
 
+use App\Modules\System\Support\LogsActivity;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
@@ -22,6 +23,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class User extends Authenticatable implements FilamentUser, HasName
 {
+    use LogsActivity;
+
     private const int MAX_FAILED_ATTEMPTS = 5;
 
     protected $table = 'users';

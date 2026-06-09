@@ -40,6 +40,7 @@ class Permissions
                     'users'    => __('admin.users.model_plural'),
                     'roles'    => __('admin.roles.model_plural'),
                     'firewall' => __('admin.firewall.model_plural'),
+                    'actions'  => __('admin.actions.model_plural'),
                 ],
             ],
         ];
