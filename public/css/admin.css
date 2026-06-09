@@ -262,6 +262,15 @@
     border-bottom: 1px solid #e5e7eb !important;
 }
 
+/* Компактное тело строк: паддинг задан на контенте ячейки (.fi-ta-text и т.п.),
+   заголовки (.fi-ta-header-cell) не трогаем */
+.fi-ta-row .fi-ta-text,
+.fi-ta-row .fi-ta-color,
+.fi-ta-row .fi-ta-icon,
+.fi-ta-row .fi-ta-text-input {
+    padding-block: 0.35rem !important;
+}
+
 .fi-ta-row td {
     font-size: 0.83rem !important;
     color: #1f2937 !important;

@@ -41,6 +41,8 @@ return [
     'users.field.super_user'      => 'Super user',
     'users.field.super_user_hint' => 'Full access to everything, bypassing roles and permissions',
     'users.field.login'    => 'Login',
+    'users.field.name'     => 'Name',
+    'users.col.name'       => 'Name',
     'users.field.password' => 'Password',
     'users.field.password_hint' => 'Leave blank to keep current password',
     'users.field.active'   => 'Active',

@@ -33,6 +33,7 @@ class User extends Authenticatable implements FilamentUser, HasName
 
     protected $fillable = [
         'login',
+        'name',
         'password',
         'is_active',
         'super_user',
@@ -105,7 +106,7 @@ class User extends Authenticatable implements FilamentUser, HasName
 
     public function getFilamentName(): string
     {
-        return $this->login;
+        return filled($this->name) ? $this->name : $this->login;
     }
 
     public function canAccessPanel(Panel $panel): bool

@@ -41,6 +41,8 @@ return [
     'users.field.super_user'      => 'Суперпользователь',
     'users.field.super_user_hint' => 'Полный доступ ко всему, в обход ролей и прав',
     'users.field.login'    => 'Логин',
+    'users.field.name'     => 'Имя',
+    'users.col.name'       => 'Имя',
     'users.field.password' => 'Пароль',
     'users.field.password_hint' => 'Оставьте пустым, чтобы не менять',
     'users.field.active'   => 'Активен',

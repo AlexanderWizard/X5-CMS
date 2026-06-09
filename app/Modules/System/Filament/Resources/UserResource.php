@@ -51,6 +51,10 @@ class UserResource extends Resource
                 ->maxLength(191)
                 ->unique(ignoreRecord: true),
 
+            Forms\Components\TextInput::make('name')
+                ->label(__('admin.users.field.name'))
+                ->maxLength(191),
+
             Forms\Components\TextInput::make('password')
                 ->label(__('admin.users.field.password'))
                 ->password()
@@ -94,6 +98,12 @@ class UserResource extends Resource
                     ->label(__('admin.users.col.login'))
                     ->searchable()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('name')
+                    ->label(__('admin.users.col.name'))
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('—'),
 
                 Tables\Columns\IconColumn::make('is_active')
                     ->label(__('admin.users.col.active'))
