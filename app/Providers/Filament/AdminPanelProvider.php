@@ -56,6 +56,41 @@ class AdminPanelProvider extends PanelProvider
                 ),
             )
 
+            // Авто-сворачивание неактивных групп меню (раскрыта только активная)
+            ->renderHook(
+                PanelsRenderHook::SCRIPTS_AFTER,
+                fn (): HtmlString => new HtmlString(<<<'HTML'
+                    <script>
+                        (function () {
+                            function syncSidebarGroups() {
+                                var store = window.Alpine && window.Alpine.store('sidebar');
+                                if (! store) return;
+
+                                var groups = document.querySelectorAll(
+                                    '.fi-main-sidebar .fi-sidebar-group[data-group-label]'
+                                );
+
+                                var collapsed = [];
+                                groups.forEach(function (group) {
+                                    if (! group.classList.contains('fi-active')) {
+                                        collapsed.push(group.getAttribute('data-group-label'));
+                                    }
+                                });
+
+                                store.collapsedGroups = collapsed;
+                            }
+
+                            document.addEventListener('alpine:initialized', function () {
+                                requestAnimationFrame(syncSidebarGroups);
+                            });
+                            document.addEventListener('livewire:navigated', function () {
+                                requestAnimationFrame(syncSidebarGroups);
+                            });
+                        })();
+                    </script>
+                HTML),
+            )
+
             // Внешняя ссылка на документацию в левом меню
             ->navigationItems([
                 NavigationItem::make(__('admin.nav.documentation'))
