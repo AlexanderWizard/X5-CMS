@@ -38,6 +38,9 @@ class AdminPanelProvider extends PanelProvider
 
             // Брендинг
             ->brandName('Notify Service')
+            ->brandLogo(fn (): string => asset('images/logo.svg') . '?v=' . filemtime(public_path('images/logo.svg')))
+            ->darkModeBrandLogo(fn (): string => asset('images/logo.svg') . '?v=' . filemtime(public_path('images/logo.svg')))
+            ->brandLogoHeight('2rem')
             ->colors(['primary' => Color::Orange])
             ->maxContentWidth(Width::Full)
 
