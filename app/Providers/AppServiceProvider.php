@@ -5,6 +5,7 @@ namespace App\Providers;
 use Filament\Support\Facades\FilamentTimezone;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
     {
         // MySQL 5.6 совместимость — ограничение длины строковых индексов
         Builder::defaultStringLength(191);
+
+        // Директива @partial('slug') — инклюд шаблона CMS из БД
+        Blade::directive('partial', function (string $expression): string {
+            return "<?php echo \\App\\Modules\\Cms\\Support\\TemplateRenderer::partial({$expression}, get_defined_vars()); ?>";
+        });
 
         // Применяем локаль пользователя как только auth будет доступен
         $this->callAfterResolving('auth', function () {

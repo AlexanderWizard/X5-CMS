@@ -90,6 +90,17 @@ app/Modules/
 │       │   └── MessageQueueResource/Pages/ListMessageQueues.php
 │       └── Widgets/
 │           └── QueueStatsWidget.php  # Виджет: всего / не обработано / обработано
+├── Cms/
+│   ├── Models/
+│   │   ├── Page.php                  # Страница сайта (таблица pages, дерево через parent_id)
+│   │   └── Template.php              # Шаблон вывода (таблица templates, Blade-разметка)
+│   ├── Http/Controllers/PageController.php  # Публичный фронт
+│   └── Filament/
+│       └── Resources/
+│           ├── PageResource.php      # CRUD дерева страниц
+│           │   └── PageResource/Pages/{List,Create,Edit}Page.php
+│           └── TemplateResource.php  # CRUD шаблонов
+│               └── TemplateResource/Pages/{List,Create,Edit}Template.php
 └── System/
     ├── Models/
     │   ├── User.php                  # Системный пользователь (таблица users)
@@ -109,6 +120,7 @@ PSR-4 namespace: `App\Modules\*` — автоматически покрывае
 `app/Providers/Filament/AdminPanelProvider.php`:
 ```php
 ->discoverResources(in: app_path('Modules/Api/Filament/Resources'), for: 'App\Modules\Api\Filament\Resources')
+->discoverResources(in: app_path('Modules/Cms/Filament/Resources'), for: 'App\Modules\Cms\Filament\Resources')
 ->discoverResources(in: app_path('Modules/System/Filament/Resources'), for: 'App\Modules\System\Filament\Resources')
 ->discoverWidgets(in: app_path('Modules/Api/Filament/Widgets'), for: 'App\Modules\Api\Filament\Widgets')
 ->discoverWidgets(in: app_path('Modules/System/Filament/Widgets'), for: 'App\Modules\System\Filament\Widgets')
@@ -146,6 +158,63 @@ Builder::defaultStringLength(191);
 - `$timestamps = false`
 - `$fillable = ['channel', 'body']`
 - `is_processed` — системное поле, не в fillable, не возвращать в API
+
+### Таблица `pages` (модуль CMS)
+
+| Колонка    | Тип          | Default           | Описание                          |
+|------------|--------------|-------------------|-----------------------------------|
+| id         | bigint PK    | auto_increment    | первичный ключ                    |
+| parent_id  | bigint FK    | NULL              | → pages.id (ON DELETE CASCADE)    |
+| title      | varchar(191) | —                 | заголовок                         |
+| slug       | varchar(191) | —                 | URL (unique)                      |
+| content    | longtext     | NULL              | содержимое (RichEditor)           |
+| is_home    | tinyint(1)   | 0                 | 1 = главная лендинга (только одна)|
+| is_active  | tinyint(1)   | 1                 | опубликована                      |
+| sort_order | int          | 0                 | порядок среди соседей             |
+| created_at | timestamp    | CURRENT_TIMESTAMP | дата создания                     |
+
+Модель: `App\Modules\Cms\Models\Page`
+- `$timestamps = false`; дерево через `parent()` / `children()` (self-reference)
+- `getDepthAttribute()` — глубина вложенности; `descendantIds()` — id поддерева (для исключения из выбора родителя, защита от циклов)
+- `booted()::saving` — при `is_home=1` снимает флаг со всех остальных (главная одна)
+- Трейт `LogsActivity` (журнал действий)
+- Миграция засевает главную страницу (`title='Главная', slug='home', is_home=1`)
+- `PageResource`: таблица в tree-порядке (`parent_id, sort_order, id`), заголовок с отступом по глубине;
+  главную нельзя удалить (`DeleteAction->visible(!is_home)`); action «Открыть на сайте». permissionPrefix `cms.pages`.
+
+**Шаблоны (таблица `templates`):**
+- Колонки: id, name, slug(unique), is_system, body(longtext — Blade-разметка), created_at
+- Модель `App\Modules\Cms\Models\Template`: `pages()` hasMany, трейт `LogsActivity`
+- `pages.template_id` → FK на `templates` (ON DELETE SET NULL); `Page::template()` belongsTo
+- Шаблон `home` (засеян миграцией) = лендинг главной; главной странице назначен `template_id`
+- Стили лендинга — в `resources/scss/landing.scss` → компиляция в `public/css/landing.css`
+  (`npx sass resources/scss/landing.scss public/css/landing.css --style=compressed --no-source-map`);
+  шаблон подключает её через `<link ... ?v={{ filemtime(...) }}>`
+- В `body` доступны переменные при рендере: **`$title`, `$content` (тело страницы), `$children`, `$page`, `$appName`**.
+  Вывод тела страницы внутри шаблона — `{!! $content !!}`
+- **Системные шаблоны** (`is_system=1`): `header`, `menu`, `footer` — частичные, защищены от удаления.
+  Лендинг `home` инклюдит их.
+- **Директива `@partial('slug')`** — инклюд шаблона CMS из БД (зарегистрирована в `AppServiceProvider::boot`,
+  компилируется в `TemplateRenderer::partial($slug, get_defined_vars())`).
+  `App\Modules\Cms\Support\TemplateRenderer::render/partial` находит шаблон по slug и рендерит его
+  `Blade::render` с переменными родителя (служебные `__*`, `app`, `errors` вычищаются).
+  Поддерживает вложенность (header → menu).
+- `TemplateResource` (CMS, sort 2): name/slug/is_system + Textarea с кодом (моноширинный);
+  системные нельзя удалить. permissionPrefix `cms.templates`
+
+**Публичный фронт CMS:**
+- Контроллер `App\Modules\Cms\Http\Controllers\PageController` (`home()`, `show($path)`)
+- Роуты `routes/web.php`: `/` → `cms.home` (главная), `/{path}` → `cms.page` (catch-all,
+  регуляркой `^(?!admin|api|docs|login)...` исключает служебные префиксы, регистрируется ПОСЛЕДНИМ)
+- **Рендер:** если у страницы есть `template` с непустым `body` → `Blade::render($template->body, $data)`;
+  иначе — встроенный `resources/views/cms/page.blade.php` (fallback)
+- URL: главная на `/` (её slug «home» прозрачен и в путь не попадает); дети главной → `/about`,
+  `/about/team`; корни-сиблинги → `/services`. Неактивные и `/home` → 404.
+- `Page`: `findByPath($path)` (резолв по иерархии, первый сегмент = корень ИЛИ ребёнок главной),
+  `getPathAttribute`, `getUrlAttribute`, `ancestorsTrail()`, `home()`
+- ⚠️ **Безопасность:** `Blade::render()` компилирует и исполняет PHP — тело шаблона = доверенный код
+  только админов с правом `cms.templates`. Контент страницы выводится как HTML (`{!! $content !!}`)
+  — право `cms.pages`. Менее доверенным ролям эти права не выдавать (нужна изоляция/санитизация).
 
 ### Таблица `users`
 
@@ -284,6 +353,10 @@ protected string $view = '...';  // НЕ static
 
 ▼ API
    📋 Очередь сообщений → /admin/api/messages
+
+▼ CMS
+   📄 Страницы          → /admin/cms/pages    (sort 1)
+   🧩 Шаблоны           → /admin/cms/templates (sort 2)
 
 ▼ System
    👥 Users             → /admin/system/users    (sort 1)

@@ -104,9 +104,11 @@ class AdminPanelProvider extends PanelProvider
 
             // Авто-обнаружение ресурсов, страниц, виджетов (модульная архитектура)
             ->discoverResources(in: app_path('Modules/Api/Filament/Resources'), for: 'App\Modules\Api\Filament\Resources')
+            ->discoverResources(in: app_path('Modules/Cms/Filament/Resources'), for: 'App\Modules\Cms\Filament\Resources')
             ->discoverResources(in: app_path('Modules/System/Filament/Resources'), for: 'App\Modules\System\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->discoverWidgets(in: app_path('Modules/Api/Filament/Widgets'), for: 'App\Modules\Api\Filament\Widgets')
+            ->discoverWidgets(in: app_path('Modules/Cms/Filament/Widgets'), for: 'App\Modules\Cms\Filament\Widgets')
             ->discoverWidgets(in: app_path('Modules/System/Filament/Widgets'), for: 'App\Modules\System\Filament\Widgets')
 
             ->middleware([

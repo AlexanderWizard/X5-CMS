@@ -76,6 +76,8 @@ class ActionLog extends Model
     {
         return match (class_basename($subject)) {
             'MessageQueue' => __('admin.nav.message_queue'),
+            'Page'         => __('admin.cms.pages.model_plural'),
+            'Template'     => __('admin.cms.templates.model_plural'),
             'User'         => __('admin.users.model_plural'),
             'Role'         => __('admin.roles.model_plural'),
             'FirewallRule' => __('admin.firewall.model_plural'),

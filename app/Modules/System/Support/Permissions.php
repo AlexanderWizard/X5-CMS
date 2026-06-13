@@ -34,6 +34,13 @@ class Permissions
                     'messages' => __('admin.nav.message_queue'),
                 ],
             ],
+            'cms' => [
+                'label'     => 'CMS',
+                'resources' => [
+                    'pages'     => __('admin.cms.pages.model_plural'),
+                    'templates' => __('admin.cms.templates.model_plural'),
+                ],
+            ],
             'system' => [
                 'label'     => 'System',
                 'resources' => [
