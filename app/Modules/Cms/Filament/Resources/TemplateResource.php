@@ -124,6 +124,7 @@ class TemplateResource extends Resource
         $heading = e(__('admin.cms.templates.vars.heading'));
         $outLabel = e(__('admin.cms.templates.vars.output'));
         $incLabel = e(__('admin.cms.templates.vars.include'));
+        $blockLabel = e(__('admin.cms.templates.vars.block'));
 
         return new HtmlString(<<<HTML
             <div style="display:flex;flex-direction:column;gap:.75rem;">
@@ -136,6 +137,8 @@ class TemplateResource extends Resource
                     <code style="{$snippet}">{!! \$content !!}</code>
                     <span style="color:#6b7280;font-size:.8rem;">{$incLabel}:</span>
                     <code style="{$snippet}">@partial('header')</code>
+                    <span style="color:#6b7280;font-size:.8rem;">{$blockLabel}:</span>
+                    <code style="{$snippet}">@block('phone')</code>
                 </div>
             </div>
         HTML);

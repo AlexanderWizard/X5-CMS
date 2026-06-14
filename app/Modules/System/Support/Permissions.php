@@ -39,6 +39,7 @@ class Permissions
                 'resources' => [
                     'pages'     => __('admin.cms.pages.model_plural'),
                     'templates' => __('admin.cms.templates.model_plural'),
+                    'blocks'    => __('admin.cms.blocks.model_plural'),
                 ],
             ],
             'system' => [

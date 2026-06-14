@@ -194,6 +194,10 @@ Builder::defaultStringLength(191);
   Вывод тела страницы внутри шаблона — `{!! $content !!}`
 - **Системные шаблоны** (`is_system=1`): `header`, `menu`, `footer` — частичные, защищены от удаления.
   Лендинг `home` инклюдит их.
+- **Блоки (таблица `blocks`)** — переиспользуемые текстовые фрагменты (телефон, e-mail, адрес).
+  Модель `App\Modules\Cms\Models\Block` (name, slug unique, value, LogsActivity).
+  Директива **`@block('slug')`** (зарег. в `AppServiceProvider::boot`) → `TemplateRenderer::block($slug)`
+  (кэш на запрос). `BlockResource` (CMS, sort 3), permissionPrefix `cms.blocks`, в дереве прав.
 - **Директива `@partial('slug')`** — инклюд шаблона CMS из БД (зарегистрирована в `AppServiceProvider::boot`,
   компилируется в `TemplateRenderer::partial($slug, get_defined_vars())`).
   `App\Modules\Cms\Support\TemplateRenderer::render/partial` находит шаблон по slug и рендерит его
@@ -355,8 +359,9 @@ protected string $view = '...';  // НЕ static
    📋 Очередь сообщений → /admin/api/messages
 
 ▼ CMS
-   📄 Страницы          → /admin/cms/pages    (sort 1)
+   📄 Страницы          → /admin/cms/pages     (sort 1)
    🧩 Шаблоны           → /admin/cms/templates (sort 2)
+   🔤 Блоки             → /admin/cms/blocks    (sort 3)
 
 ▼ System
    👥 Users             → /admin/system/users    (sort 1)

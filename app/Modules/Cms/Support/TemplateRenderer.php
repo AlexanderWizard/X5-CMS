@@ -2,6 +2,7 @@
 
 namespace App\Modules\Cms\Support;
 
+use App\Modules\Cms\Models\Block;
 use App\Modules\Cms\Models\Template;
 use Illuminate\Support\Facades\Blade;
 
@@ -34,6 +35,21 @@ class TemplateRenderer
     public static function partial(string $slug, array $vars = []): string
     {
         return static::render($slug, $vars);
+    }
+
+    /** @var array<string, string> кэш блоков на время запроса */
+    protected static array $blockCache = [];
+
+    /**
+     * Значение текстового блока по slug (вызывается из директивы @block).
+     */
+    public static function block(string $slug): string
+    {
+        if (!array_key_exists($slug, static::$blockCache)) {
+            static::$blockCache[$slug] = (string) (Block::query()->where('slug', $slug)->value('value') ?? '');
+        }
+
+        return static::$blockCache[$slug];
     }
 
     /**

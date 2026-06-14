@@ -31,6 +31,11 @@ class AppServiceProvider extends ServiceProvider
             return "<?php echo \\App\\Modules\\Cms\\Support\\TemplateRenderer::partial({$expression}, get_defined_vars()); ?>";
         });
 
+        // Директива @block('slug') — вывод переиспользуемого текстового блока
+        Blade::directive('block', function (string $expression): string {
+            return "<?php echo \\App\\Modules\\Cms\\Support\\TemplateRenderer::block({$expression}); ?>";
+        });
+
         // Применяем локаль пользователя как только auth будет доступен
         $this->callAfterResolving('auth', function () {
             $user = auth('admin')->user();
