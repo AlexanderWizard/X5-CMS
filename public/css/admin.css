@@ -272,7 +272,13 @@
 .fi-ta-row .fi-ta-color,
 .fi-ta-row .fi-ta-icon,
 .fi-ta-row .fi-ta-text-input {
-    padding-block: 0.35rem !important;
+    padding-block: 0.2rem !important;
+}
+
+/* Ячейка действий (кнопки/иконки в строке) держит свой py-4 (16px) и задаёт
+   высоту строки — приводим её к тому же компактному паддингу, что и остальные */
+.fi-ta-row .fi-ta-cell:has(.fi-ta-actions) {
+    padding-block: 0.2rem !important;
 }
 
 .fi-ta-row td {
@@ -351,4 +357,99 @@
 .fi-tabs-item.fi-active > .fi-icon {
     color: #111827 !important;
     font-weight: 700 !important;
+}
+
+/* ============================================================
+   ТЁМНАЯ ТЕМА (html.dark)
+   Базовые правила выше форсят светлый фон / тёмный текст без оглядки
+   на тему Filament. Когда панель в dark-режиме (Chrome/ОС в тёмной теме
+   или ручной выбор), это даёт «белое на белом». Ниже — тёмные эквиваленты.
+   Сайдбар намеренно тёмный в обеих темах и здесь не трогается.
+   Префикс html.dark поднимает специфичность над базовыми правилами.
+   Палитра: фон #1b1b1b, панели #262626, ховер/шапки #2d2d2d,
+   рамки #3a3a3a, текст #e5e7eb, приглушённый #9ca3af.
+   ============================================================ */
+
+/* Топбар */
+html.dark .fi-topbar {
+    background-color: #262626 !important;
+    border-bottom: 1px solid #3a3a3a !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4) !important;
+}
+
+/* Контент */
+html.dark .fi-main {
+    background-color: #1b1b1b !important;
+}
+
+/* Заголовок страницы — светлый текст на тёмном фоне */
+html.dark .fi-page-header h1 {
+    color: #f3f4f6 !important;
+}
+
+/* Виджеты stats — тёмные карточки */
+html.dark .fi-wi-stats-overview-stat {
+    background: #262626 !important;
+    border: 1px solid #3a3a3a !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+}
+
+html.dark .fi-wi-stats-overview-stat-label {
+    color: #9ca3af !important;
+}
+
+html.dark .fi-wi-stats-overview-stat-value {
+    color: #f3f4f6 !important;
+}
+
+/* Таблица */
+html.dark .fi-ta-ctn {
+    background: #262626 !important;
+    border: 1px solid #3a3a3a !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+}
+
+html.dark .fi-ta-header-cell {
+    background-color: #2d2d2d !important;
+    color: #9ca3af !important;
+    border-bottom: 1px solid #3a3a3a !important;
+}
+
+html.dark .fi-ta-row td {
+    color: #e5e7eb !important;
+    border-bottom: 1px solid #333333 !important;
+}
+
+html.dark .fi-ta-row:hover td {
+    background-color: #2d2d2d !important;
+}
+
+/* Секции (формы, карточки) */
+html.dark .fi-section:not(.fi-section-not-contained) {
+    background: #262626 !important;
+    border: 1px solid #3a3a3a !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+}
+
+/* Табы */
+html.dark .fi-tabs {
+    border-bottom: 1px solid #3a3a3a !important;
+}
+
+html.dark .fi-tabs-item {
+    color: #9ca3af !important;
+}
+
+html.dark .fi-tabs-item:hover,
+html.dark .fi-tabs-item:focus-visible {
+    color: #f3f4f6 !important;
+}
+
+html.dark .fi-tabs-item.fi-active {
+    border-bottom: 2px solid #f3f4f6 !important;
+}
+
+html.dark .fi-tabs-item.fi-active .fi-tabs-item-label,
+html.dark .fi-tabs-item.fi-active > .fi-icon {
+    color: #f3f4f6 !important;
 }
