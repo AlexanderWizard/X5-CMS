@@ -94,6 +94,58 @@ class AdminPanelProvider extends PanelProvider
                 HTML),
             )
 
+            // AJAX-лоадер: центрированный спиннер при загрузке модалки.
+            // Оверлей (position:fixed) + скрипт ниже, который ловит Livewire-запрос
+            // монтирования экшена (mountAction — кнопки страницы вроде Create;
+            // mountTableAction — Edit/Delete в строке). Стиль — admin.scss.
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): HtmlString => new HtmlString(<<<'HTML'
+                    <div class="app-modal-loader" aria-hidden="true">
+                        <div class="app-modal-loader__spinner"></div>
+                    </div>
+                HTML),
+            )
+            ->renderHook(
+                PanelsRenderHook::SCRIPTS_AFTER,
+                fn (): HtmlString => new HtmlString(<<<'HTML'
+                    <script>
+                        document.addEventListener('livewire:init', function () {
+                            if (! window.Livewire) return;
+
+                            var MOUNT = ['mountAction', 'mountTableAction', 'mountFormComponentAction'];
+                            var opensModal = function (payload) {
+                                try {
+                                    // payload приходит JSON-строкой — разбираем
+                                    if (typeof payload === 'string') payload = JSON.parse(payload);
+                                    var comps = Array.isArray(payload) ? payload : (payload.components || []);
+                                    return comps.some(function (c) {
+                                        return (c.calls || []).some(function (call) {
+                                            return MOUNT.indexOf(call.method) !== -1;
+                                        });
+                                    });
+                                } catch (e) { return false; }
+                            };
+
+                            Livewire.hook('request', function (opts) {
+                                if (! opensModal(opts.payload)) return;
+
+                                var loader = document.querySelector('.app-modal-loader');
+                                if (loader) loader.style.display = 'flex';
+
+                                var hide = function () {
+                                    var l = document.querySelector('.app-modal-loader');
+                                    if (l) l.style.display = 'none';
+                                };
+
+                                opts.succeed && opts.succeed(hide);
+                                opts.fail && opts.fail(hide);
+                            });
+                        });
+                    </script>
+                HTML),
+            )
+
             // Внешняя ссылка на документацию в левом меню
             ->navigationItems([
                 NavigationItem::make(__('admin.nav.documentation'))

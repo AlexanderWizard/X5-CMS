@@ -484,6 +484,20 @@ crontab -e
 специфичность над базовыми правилами. **Любое новое светлое правило дублировать в `html.dark`.**
 Сайдбар намеренно тёмный в обеих темах — не трогаем.
 
+### AJAX-лоадер модалок
+
+Центрированный спиннер-оверлей при загрузке модалки (открытие любого экшена с формой —
+create/edit/delete). Реализация в `AdminPanelProvider`:
+- Оверлей `<div class="app-modal-loader">` — рендер-хук `PanelsRenderHook::BODY_END`
+  (стиль `.app-modal-loader`/`__spinner` в `admin.scss`, `position:fixed`, `z-index:99999`,
+  затемнение+blur, вращающийся бордюр; **`display` без `!important`** — управляется из JS).
+- Скрипт (`PanelsRenderHook::SCRIPTS_AFTER`): `Livewire.hook('request', …)` — `opts.payload`
+  приходит **JSON-строкой**, парсим, и если среди `components[].calls[].method` есть
+  `mountAction`/`mountTableAction`/`mountFormComponentAction` — показываем оверлей, на
+  `succeed`/`fail` прячем. На обычных запросах (сортировка/поиск/пагинация) не показывается.
+- ⚠️ `wire:loading` тут НЕ годится: `BODY_END`/`CONTENT_END` рендерятся ВНЕ Livewire-компонента
+  страницы (`closest('[wire:id]')` = null), поэтому директива не сработала бы — отсюда JS-хук.
+
 ### Светлая тема
 
 - Тёмный сайдбар: `#292929`

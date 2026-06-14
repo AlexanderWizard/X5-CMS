@@ -4,6 +4,7 @@ namespace App\Modules\System\Filament\Resources\FirewallResource\Pages;
 
 use App\Modules\System\Filament\Resources\FirewallResource;
 use Filament\Actions;
+use Filament\Support\Enums\Width;
 use Filament\Resources\Pages\ListRecords;
 
 class ListFirewallRules extends ListRecords
@@ -13,7 +14,10 @@ class ListFirewallRules extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()->label(__('admin.firewall.action.add')),
+            // Создание — в модальном окне (create-страница не зарегистрирована)
+            Actions\CreateAction::make()
+                ->label(__('admin.firewall.action.add'))
+                ->modalWidth(Width::TwoExtraLarge),
         ];
     }
 }

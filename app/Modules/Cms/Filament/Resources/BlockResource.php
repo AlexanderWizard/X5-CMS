@@ -6,11 +6,14 @@ use App\Modules\Cms\Filament\Resources\BlockResource\Pages;
 use App\Modules\Cms\Models\Block;
 use App\Modules\System\Filament\Concerns\AuthorizesWithPermissions;
 use BackedEnum;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
@@ -71,7 +74,10 @@ class BlockResource extends Resource
                         ->rows(3)
                         ->columnSpanFull(),
                 ])
-                ->columns(2),
+                ->columns(2)
+                // секция должна занимать всю ширину формы (в модалке корневая
+                // сетка 2-колоночная — без этого секция «прижимается» к левой половине)
+                ->columnSpanFull(),
         ]);
     }
 
@@ -109,15 +115,21 @@ class BlockResource extends Resource
                     ->toggleable(),
             ])
             ->defaultSort('id', 'asc')
-            ->recordUrl(fn (Block $record) => static::getUrl('edit', ['record' => $record]));
+            // Редактирование во всплывающем модальном окне (клик по строке или кнопка).
+            ->recordAction('edit')
+            ->actions([
+                EditAction::make()->modalWidth(Width::TwoExtraLarge),
+                DeleteAction::make(),
+            ]);
     }
 
     public static function getPages(): array
     {
+        // create/edit — в модалках, поэтому соответствующие страницы НЕ регистрируем:
+        // иначе Filament навесил бы на экшены переход по URL вместо модалки
+        // (имена экшенов create/edit совпали бы с именами страниц).
         return [
-            'index'  => Pages\ListBlocks::route('/'),
-            'create' => Pages\CreateBlock::route('/create'),
-            'edit'   => Pages\EditBlock::route('/{record}/edit'),
+            'index' => Pages\ListBlocks::route('/'),
         ];
     }
 }

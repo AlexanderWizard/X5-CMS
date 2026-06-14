@@ -7,9 +7,12 @@ use App\Modules\System\Filament\Resources\FirewallResource\Pages;
 use App\Modules\System\Models\FirewallRule;
 use BackedEnum;
 use Closure;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -104,15 +107,21 @@ class FirewallResource extends Resource
                     ->sortable(),
             ])
             ->defaultSort('id', 'asc')
-            ->recordUrl(fn (FirewallRule $record) => static::getUrl('edit', ['record' => $record]));
+            // Редактирование во всплывающем модальном окне (без перехода на страницу).
+            // Клик по строке открывает ту же модалку, что и кнопка «редактировать».
+            ->recordAction('edit')
+            ->actions([
+                EditAction::make()->modalWidth(Width::TwoExtraLarge),
+                DeleteAction::make(),
+            ]);
     }
 
     public static function getPages(): array
     {
+        // create/edit — в модалках, поэтому соответствующие страницы НЕ регистрируем:
+        // иначе Filament навесил бы на экшены переход по URL вместо модалки.
         return [
-            'index'  => Pages\ListFirewallRules::route('/'),
-            'create' => Pages\CreateFirewallRule::route('/create'),
-            'edit'   => Pages\EditFirewallRule::route('/{record}/edit'),
+            'index' => Pages\ListFirewallRules::route('/'),
         ];
     }
 }
