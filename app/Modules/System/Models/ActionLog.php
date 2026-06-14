@@ -82,6 +82,7 @@ class ActionLog extends Model
             'User'         => __('admin.users.model_plural'),
             'Role'         => __('admin.roles.model_plural'),
             'FirewallRule' => __('admin.firewall.model_plural'),
+            'Translation'  => __('admin.translations.model_plural'),
             default        => class_basename($subject),
         };
     }

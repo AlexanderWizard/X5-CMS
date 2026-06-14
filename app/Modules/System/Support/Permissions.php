@@ -45,10 +45,11 @@ class Permissions
             'system' => [
                 'label'     => 'System',
                 'resources' => [
-                    'users'    => __('admin.users.model_plural'),
-                    'roles'    => __('admin.roles.model_plural'),
-                    'firewall' => __('admin.firewall.model_plural'),
-                    'actions'  => __('admin.actions.model_plural'),
+                    'users'        => __('admin.users.model_plural'),
+                    'roles'        => __('admin.roles.model_plural'),
+                    'firewall'     => __('admin.firewall.model_plural'),
+                    'actions'      => __('admin.actions.model_plural'),
+                    'translations' => __('admin.translations.model_plural'),
                 ],
             ],
         ];

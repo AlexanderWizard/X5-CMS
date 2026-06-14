@@ -104,13 +104,18 @@ app/Modules/
 └── System/
     ├── Models/
     │   ├── User.php                  # Системный пользователь (таблица users)
-    │   └── Role.php                  # Роль (таблица roles), belongsToMany users
+    │   ├── Role.php                  # Роль (таблица roles), belongsToMany users
+    │   └── Translation.php           # Перевод UI (таблица translations, i18n в БД)
+    ├── Support/
+    │   └── DatabaseTranslationLoader.php  # загрузчик переводов из БД (extends FileLoader)
     └── Filament/
         └── Resources/
             ├── UserResource.php      # CRUD пользователей
             │   └── UserResource/Pages/{List,Create,Edit}User.php
-            └── RoleResource.php      # CRUD ролей (multi-select пользователей)
-                └── RoleResource/Pages/{List,Create,Edit}Role.php
+            ├── RoleResource.php      # CRUD ролей (multi-select пользователей)
+            │   └── RoleResource/Pages/{List,Create,Edit}Role.php
+            └── TranslationResource.php  # CRUD переводов (инлайн-правка value)
+                └── TranslationResource/Pages/{List,Create,Edit}Translation.php
 ```
 
 PSR-4 namespace: `App\Modules\*` — автоматически покрывается `"App\\": "app/"` в `composer.json`.
@@ -187,9 +192,8 @@ Builder::defaultStringLength(191);
 - Модель `App\Modules\Cms\Models\Template`: `pages()` hasMany, трейт `LogsActivity`
 - `pages.template_id` → FK на `templates` (ON DELETE SET NULL); `Page::template()` belongsTo
 - Шаблон `home` (засеян миграцией) = лендинг главной; главной странице назначен `template_id`
-- Стили лендинга — в `resources/scss/landing.scss` → компиляция в `public/css/landing.css`
-  (`npx sass resources/scss/landing.scss public/css/landing.css --style=compressed --no-source-map`);
-  шаблон подключает её через `<link ... ?v={{ filemtime(...) }}>`
+- Стили лендинга — в `resources/scss/landing.scss` → `public/css/landing.css` (сборка `npm run css`,
+  см. раздел «Стилизация (SCSS → CSS)»); шаблон подключает её через `<link ... ?v={{ filemtime(...) }}>`
 - В `body` доступны переменные при рендере: **`$title`, `$content` (тело страницы), `$children`, `$page`, `$appName`**.
   Вывод тела страницы внутри шаблона — `{!! $content !!}`
 - **Системные шаблоны** (`is_system=1`): `header`, `menu`, `footer` — частичные, защищены от удаления.
@@ -299,7 +303,8 @@ Filament синхронизирует pivot `role_user` автоматическ
   `canViewAny/canView/canCreate/canEdit/canDelete/canDeleteAny`.
   - `canViewAny=false` скрывает ресурс из меню (пустые группы Filament прячет сам)
 - Подключён в `MessageQueueResource` (`api.messages`), `UserResource` (`system.users`),
-  `RoleResource` (`system.roles`), `FirewallResource` (`system.firewall`).
+  `RoleResource` (`system.roles`), `FirewallResource` (`system.firewall`),
+  `ActionLogResource` (`system.actions`), `TranslationResource` (`system.translations`).
 
 ### Firewall (IP-allowlist)
 
@@ -368,6 +373,7 @@ protected string $view = '...';  // НЕ static
    🛡 Roles             → /admin/system/roles    (sort 2)
    🧱 Firewall          → /admin/system/firewall (sort 3)
    📋 Actions           → /admin/system/actions  (sort 4, журнал, read-only)
+   🈯 Переводы           → /admin/system/translations (sort 5, i18n в БД)
 ```
 
 Корни модулей без index-маршрута (`/admin/api`, `/admin/system`) рендерят страницу 404
@@ -394,7 +400,27 @@ protected string $view = '...';  // НЕ static
 - Хранится в `users.locale` (default: `ru`)
 - Применяется в `AppServiceProvider::boot()` через `callAfterResolving('auth', ...)`
 - Middleware `SetUserLocale` в `authMiddleware` панели
-- Файлы переводов: `lang/ru/admin.php`, `lang/en/admin.php`
+
+### Переводы интерфейса — в БД (таблица `translations`), НЕ в lang-файлах
+
+**Источник правды для строк UI — таблица `translations`, а не `lang/*.php`** (их больше нет).
+
+- Таблица `translations`: `group`(default `admin`), `key`(плоский, с точками — `users.nav`),
+  `locale`(ru/en), `value`, `created_at`. UNIQUE(`group,key,locale`). Модель
+  `App\Modules\System\Models\Translation` (`$timestamps=false`, LogsActivity).
+- Загрузчик `App\Modules\System\Support\DatabaseTranslationLoader` (extends `FileLoader`):
+  берёт файловые строки (для vendor/namespaced групп), затем подмешивает строки из БД сверху
+  (БД приоритетна), мемоизация на запрос, устойчив к отсутствию таблицы (тихий фолбэк).
+- Регистрация: `AppServiceProvider::register()` через **`$this->app->extend('translation.loader', …)`**
+  (НЕ `singleton` — `TranslationServiceProvider` отложенный и лениво биндит свой `FileLoader`,
+  `extend` применяется поверх позднего биндинга).
+- Использование в коде не меняется: `__('admin.users.nav')` и т.п.
+- Начальный сид — `database/data/admin_translations.php` (массив строк), грузится миграцией
+  `..._create_translations_table.php` (для `migrate`/`migrate:fresh`).
+- Редактирование — раздел **Переводы** (`/admin/system/translations`, `TranslationResource`,
+  permissionPrefix `system.translations`): таблица с инлайн-правкой `value` (`TextInputColumn`),
+  фильтры по локали и группе. Правка сразу влияет на `__()` (кэша между запросами нет).
+- Добавить язык = добавить строки с новым `locale` (и расширить `TranslationResource::LOCALES`).
 
 ### Timezone
 
@@ -433,9 +459,32 @@ crontab -e
 
 ---
 
-## Стилизация (public/css/admin.css)
+## Стилизация (SCSS → CSS)
 
-Инжектируется через `PanelsRenderHook::STYLES_AFTER` в `AdminPanelProvider`.
+**Источник правды — SCSS, а не CSS.** Все стили компилируются из `resources/scss/` в `public/css/`.
+**Не редактировать `public/css/*.css` руками** — менять `.scss` и пересобирать.
+
+- Исходники: `resources/scss/admin.scss` (админ-панель), `resources/scss/landing.scss` (лендинг)
+- Сборка: `npm run css` (одноразово) / `npm run css:watch` (вотчер) — компилирует оба файла
+  через `sass … --style=compressed --no-source-map`
+- `sass` запинен в `devDependencies` на `1.69.6` (новые версии падают `ERR_REQUIRE_ESM`
+  под Node 20 при `"type":"module"`); установка — `npm install`
+- `admin.scss` использует SCSS-переменные (палитры: сайдбар / светлая тема / тёмная) и вложенность
+
+`admin.css` инжектится через `PanelsRenderHook::STYLES_AFTER` в `AdminPanelProvider`
+(версионируется `?v=filemtime`).
+
+### Тёмная тема (`html.dark`)
+
+Базовые правила `admin.scss` форсят светлый вид через `!important`. Filament по умолчанию
+следует системной теме (`localStorage theme="system"`); в dark-режиме Chrome/ОС ставит
+`<html class="fi dark">` с белым текстом → без тёмной ветки было бы «белое на белом».
+В конце `admin.scss` — блок `html.dark { … }` с тёмными эквивалентами (фон контента/топбара,
+карточки виджетов/таблиц/секций, цвета текста/активных табов). Префикс `html.dark` поднимает
+специфичность над базовыми правилами. **Любое новое светлое правило дублировать в `html.dark`.**
+Сайдбар намеренно тёмный в обеих темах — не трогаем.
+
+### Светлая тема
 
 - Тёмный сайдбар: `#292929`
 - Текст пунктов: `#d6d6d6`, активный: белый на `rgba(255,255,255,0.12)`
@@ -445,8 +494,10 @@ crontab -e
 - Для виджетов stats (`fi-section-not-contained`): прозрачный фон, без рамки
 - Ширина сайдбара: переопределена `--sidebar-width: 14.3rem` (контент сдвигается сам)
 - Таблицы: тело строк компактное — `padding-block` задан на контенте ячейки
-  (`.fi-ta-row .fi-ta-text/.fi-ta-color/.fi-ta-icon`, ~0.35rem), заголовки не трогаем;
-  у `.fi-ta-ctn` НЕ ставить `overflow:hidden` (обрезает дропдаун фильтров)
+  (`.fi-ta-row .fi-ta-text/.fi-ta-color/.fi-ta-icon`, `0.2rem`), заголовки не трогаем.
+  ⚠️ Высоту строки в одиночку держит **ячейка действий** (`py-4`=16px), её правило не ловит
+  `el.matches()` — для компактности отдельно `.fi-ta-row .fi-ta-cell:has(.fi-ta-actions){padding-block:0.2rem}`
+  (синхронно с контентом ячеек). У `.fi-ta-ctn` НЕ ставить `overflow:hidden` (обрезает дропдаун фильтров)
 
 ### Табы — глобальный стиль «подчёркивание активного»
 

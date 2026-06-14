@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Modules\System\Support\DatabaseTranslationLoader;
 use Filament\Support\Facades\FilamentTimezone;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Support\Facades\App;
@@ -15,7 +16,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Переводы интерфейса грузим из БД (таблица translations) поверх файлов.
+        // TranslationServiceProvider отложенный и биндит свой FileLoader лениво,
+        // поэтому используем extend — он применяется ПОВЕРХ позднего биндинга.
+        $this->app->extend('translation.loader', function ($loader, $app) {
+            return new DatabaseTranslationLoader($app['files'], $app['path.lang']);
+        });
     }
 
     /**

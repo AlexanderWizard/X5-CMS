@@ -1,0 +1,492 @@
+// ============================================================
+//  Админ-панель Filament — кастомный стиль (исходник)
+//  Компиляция: npx sass resources/scss/admin.scss public/css/admin.css --style=compressed --no-source-map
+//  Подключается через PanelsRenderHook::STYLES_AFTER (см. AdminPanelProvider)
+// ============================================================
+
+// --- Палитра: сайдбар (тёмный в обеих темах) ---
+$sb-bg:          #292929;
+$sb-header-bg:   #222222;
+$sb-line:        #383838;
+$sb-text:        #d6d6d6;
+$sb-text-dim:    #b0b0b0;
+$sb-group:       #888888;
+$sb-hover:       rgba(255, 255, 255, 0.08);
+$sb-active:      rgba(255, 255, 255, 0.12);
+
+// --- Палитра: светлая тема (контент) ---
+$ink:        #111827;   // основной текст
+$ink-2:      #1f2937;   // текст таблиц
+$muted:      #6b7280;   // приглушённый
+$muted-2:    #4b5563;   // шапки таблиц
+$bg:         #f3f4f6;   // фон контента
+$panel:      #ffffff;   // карточки/таблицы/секции
+$panel-2:    #f9fafb;   // шапки таблиц / ховер
+$line:       #e5e7eb;   // рамки
+$line-soft:  #f3f4f6;   // мягкие рамки строк
+
+// --- Палитра: тёмная тема (html.dark) ---
+$d-bg:       #1b1b1b;   // фон контента
+$d-panel:    #262626;   // карточки/таблицы/секции/топбар
+$d-panel-2:  #2d2d2d;   // шапки таблиц / ховер
+$d-line:     #3a3a3a;   // рамки
+$d-line-soft:#333333;   // мягкие рамки строк
+$d-ink:      #f3f4f6;   // основной текст
+$d-ink-2:    #e5e7eb;   // текст таблиц
+$d-muted:    #9ca3af;   // приглушённый
+
+// --- Тени ---
+$shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+// ============================================================
+//  SIDEBAR — фон / ширина
+// ============================================================
+:root {
+    --sidebar-width: 14.3rem !important;   // 13rem + 10%
+}
+
+.fi-sidebar,
+.fi-main-sidebar {
+    background-color: $sb-bg !important;
+    border-right: none !important;
+}
+
+.fi-sidebar-header {
+    background-color: $sb-header-bg !important;
+    border-bottom: 1px solid $sb-line !important;
+    padding: 0.75rem 1rem !important;
+}
+
+.fi-sidebar-nav {
+    background-color: $sb-bg !important;
+    padding: 0.25rem 0 !important;
+}
+
+.fi-sidebar-nav-groups {
+    padding: 0 0.25rem !important;
+    row-gap: 0.25rem !important;
+    gap: 0.25rem !important;
+}
+
+// ============================================================
+//  ГРУППЫ
+// ============================================================
+.fi-sidebar-group {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.fi-sidebar-group-btn {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.5rem 1.25rem 0.25rem !important;
+    cursor: pointer !important;
+    gap: 0.4rem !important;
+}
+
+.fi-sidebar-group-label {
+    flex: 1 !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    color: $sb-group !important;
+}
+
+.fi-sidebar-group-collapse-btn {
+    color: $sb-group !important;
+    width: 0.9rem !important;
+    height: 0.9rem !important;
+}
+
+.fi-sidebar-group-items {
+    padding: 0 !important;
+}
+
+// ============================================================
+//  ПУНКТЫ МЕНЮ
+// ============================================================
+.fi-sidebar-item {
+    margin: 0 !important;
+    padding: 0 0.75rem !important;
+}
+
+.fi-sidebar-item-btn {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.65rem !important;
+    width: 100% !important;
+    padding: 0.55rem 1rem !important;
+    border-radius: 0.3rem !important;
+    font-size: 0.84rem !important;
+    font-weight: 400 !important;
+    color: $sb-text !important;
+    text-decoration: none !important;
+    transition: background 0.1s, color 0.1s !important;
+
+    &:hover {
+        background-color: $sb-hover !important;
+        color: #ffffff !important;
+    }
+}
+
+// Активный пункт
+.fi-sidebar-item.fi-active .fi-sidebar-item-btn {
+    background-color: $sb-active !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
+}
+
+.fi-sidebar-item-icon {
+    width: 1rem !important;
+    height: 1rem !important;
+    flex-shrink: 0 !important;
+    color: inherit !important;
+    opacity: 0.75 !important;
+}
+
+.fi-sidebar-item-label {
+    color: inherit !important;
+    line-height: 1.25 !important;
+}
+
+// Подпункты (sub-grouped) — с отступом, без иконок
+.fi-sidebar-sub-group-items {
+    .fi-sidebar-item {
+        padding: 0 0.4rem 0 1.5rem !important;
+    }
+
+    .fi-sidebar-item-btn {
+        font-size: 0.82rem !important;
+        color: $sb-text-dim !important;
+        padding: 0.3rem 0.6rem !important;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.07) !important;
+            color: #ffffff !important;
+        }
+    }
+
+    .fi-sidebar-item.fi-active .fi-sidebar-item-btn {
+        background-color: rgba(255, 255, 255, 0.11) !important;
+        color: #ffffff !important;
+    }
+}
+
+// ============================================================
+//  ЛОГОТИП / БРЕНД
+// ============================================================
+.fi-logo,
+.fi-sidebar-header a,
+.fi-sidebar-header span {
+    color: #ffffff !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+}
+
+// ============================================================
+//  ТОПБАР
+// ============================================================
+.fi-topbar {
+    background-color: $panel !important;
+    border-bottom: 1px solid $line !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07) !important;
+}
+
+// ============================================================
+//  КОНТЕНТ
+// ============================================================
+.fi-main {
+    background-color: $bg !important;
+    padding-inline: 1.5rem !important;
+}
+
+@media (min-width: 64rem) {
+    .fi-main { padding-inline: 1.5rem !important; }
+}
+
+@media (min-width: 48rem) {
+    .fi-main { padding-inline: 1.5rem !important; }
+}
+
+// Убрать большой отступ над хлебными крошками / заголовком
+.fi-page-header-main-ctn {
+    padding-top: 1rem !important;
+    padding-bottom: 0.5rem !important;
+    gap: 0.5rem !important;
+}
+
+// Убрать большой gap между заголовком и виджетами/таблицей
+.fi-page-content {
+    gap: 0.75rem !important;
+    row-gap: 0.75rem !important;
+}
+
+.fi-page-header h1 {
+    font-size: 1.4rem !important;
+    font-weight: 700 !important;
+    color: $ink !important;
+}
+
+// ============================================================
+//  ВИДЖЕТЫ STATS
+// ============================================================
+
+// Обёртка виджета — убираем фон и рамку
+.fi-wi-stats-overview {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+
+    // Внутренний контейнер fi-sc-fused-group:
+    // убираем ring (общую рамку) и divide-x (вертикальные разделители)
+    .fi-sc-fused-group > .fi-sc,
+    .fi-sc-fused-group .fi-sc {
+        box-shadow: none !important;
+        --tw-ring-shadow: none !important;
+        outline: none !important;
+    }
+
+    // Убираем divide-x — вертикальные линии между карточками.
+    // Tailwind divide-x использует > :not([hidden]) ~ :not([hidden])
+    .fi-sc > :not([hidden]) ~ :not([hidden]) {
+        border-left-width: 0 !important;
+        border-right-width: 0 !important;
+    }
+
+    // Добавляем gap между карточками вместо разделителей
+    .fi-sc.fi-grid-cols,
+    .fi-sc[class*="fi-grid-cols"] {
+        gap: 1rem !important;
+        background: transparent !important;
+    }
+}
+
+// Каждая карточка — отдельный белый блок
+.fi-wi-stats-overview-stat {
+    background: $panel !important;
+    border: 1px solid $line !important;
+    border-radius: 0.5rem !important;
+    box-shadow: $shadow-card !important;
+    ring: none !important;
+}
+
+.fi-wi-stats-overview-stat-label {
+    font-size: 0.8rem !important;
+    color: $muted !important;
+}
+
+.fi-wi-stats-overview-stat-value {
+    font-size: 1.75rem !important;
+    font-weight: 700 !important;
+    color: $ink !important;
+}
+
+// ============================================================
+//  ТАБЛИЦА
+// ============================================================
+.fi-ta-ctn {
+    background: $panel !important;
+    border: 1px solid $line !important;
+    border-radius: 0.5rem !important;
+    box-shadow: $shadow-card !important;
+    // overflow:hidden обрезал выпадающую панель фильтров — оставляем видимым
+}
+
+.fi-ta-header-cell {
+    background-color: $panel-2 !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    color: $muted-2 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    border-bottom: 1px solid $line !important;
+}
+
+// Компактное тело строк: паддинг задан на контенте ячейки (.fi-ta-text и т.п.),
+// заголовки (.fi-ta-header-cell) не трогаем
+.fi-ta-row .fi-ta-text,
+.fi-ta-row .fi-ta-color,
+.fi-ta-row .fi-ta-icon,
+.fi-ta-row .fi-ta-text-input {
+    padding-block: 0.2rem !important;
+}
+
+// Ячейка действий (кнопки/иконки в строке) держит свой py-4 (16px) и задаёт
+// высоту строки — приводим её к тому же компактному паддингу, что и остальные
+.fi-ta-row .fi-ta-cell:has(.fi-ta-actions) {
+    padding-block: 0.2rem !important;
+}
+
+.fi-ta-row td {
+    font-size: 0.83rem !important;
+    color: $ink-2 !important;
+    border-bottom: 1px solid $line-soft !important;
+}
+
+.fi-ta-row:hover td {
+    background-color: $panel-2 !important;
+}
+
+// ============================================================
+//  СЕКЦИИ
+// ============================================================
+// Стиль только для contained-секций (формы, карточки), не для not-contained (виджеты)
+.fi-section:not(.fi-section-not-contained) {
+    background: $panel !important;
+    border: 1px solid $line !important;
+    border-radius: 0.5rem !important;
+    box-shadow: $shadow-card !important;
+}
+
+// not-contained (виджет статистики) — прозрачный фон, без рамки
+.fi-section.fi-section-not-contained {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+// ============================================================
+//  ТАБЫ — стиль «подчёркивание активного»
+// ============================================================
+.fi-tabs {
+    gap: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid $line !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    overflow: visible !important;     // убираем скроллбар-артефакт (↕)
+    padding-left: 25px !important;    // отступ табов от левого края
+
+    // Прячем оверфлоу-дропдаун табов (артефакт со стрелками ↕ справа)
+    .fi-dropdown {
+        display: none !important;
+    }
+}
+
+.fi-tabs-item {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    border-radius: 0 !important;
+    margin-bottom: -1px !important;
+    padding: 1.15rem 1.5rem 0.5rem !important;
+    color: $muted !important;
+    font-weight: 500 !important;
+
+    &:hover,
+    &:focus-visible {
+        background: transparent !important;
+        color: $ink !important;
+    }
+
+    &.fi-active {
+        background: transparent !important;
+        border-bottom: 2px solid $ink !important;
+
+        .fi-tabs-item-label,
+        & > .fi-icon {
+            color: $ink !important;
+            font-weight: 700 !important;
+        }
+    }
+}
+
+// ============================================================
+//  ТЁМНАЯ ТЕМА (html.dark)
+//  Базовые правила выше форсят светлый фон / тёмный текст без оглядки
+//  на тему Filament. Когда панель в dark-режиме (Chrome/ОС в тёмной теме
+//  или ручной выбор), это даёт «белое на белом». Ниже — тёмные эквиваленты.
+//  Сайдбар намеренно тёмный в обеих темах и здесь не трогается.
+//  Префикс html.dark поднимает специфичность над базовыми правилами.
+// ============================================================
+html.dark {
+    // Топбар
+    .fi-topbar {
+        background-color: $d-panel !important;
+        border-bottom: 1px solid $d-line !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    // Контент
+    .fi-main {
+        background-color: $d-bg !important;
+    }
+
+    // Заголовок страницы — светлый текст на тёмном фоне
+    .fi-page-header h1 {
+        color: $d-ink !important;
+    }
+
+    // Виджеты stats — тёмные карточки
+    .fi-wi-stats-overview-stat {
+        background: $d-panel !important;
+        border: 1px solid $d-line !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .fi-wi-stats-overview-stat-label {
+        color: $d-muted !important;
+    }
+
+    .fi-wi-stats-overview-stat-value {
+        color: $d-ink !important;
+    }
+
+    // Таблица
+    .fi-ta-ctn {
+        background: $d-panel !important;
+        border: 1px solid $d-line !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .fi-ta-header-cell {
+        background-color: $d-panel-2 !important;
+        color: $d-muted !important;
+        border-bottom: 1px solid $d-line !important;
+    }
+
+    .fi-ta-row td {
+        color: $d-ink-2 !important;
+        border-bottom: 1px solid $d-line-soft !important;
+    }
+
+    .fi-ta-row:hover td {
+        background-color: $d-panel-2 !important;
+    }
+
+    // Секции (формы, карточки)
+    .fi-section:not(.fi-section-not-contained) {
+        background: $d-panel !important;
+        border: 1px solid $d-line !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    // Табы
+    .fi-tabs {
+        border-bottom: 1px solid $d-line !important;
+    }
+
+    .fi-tabs-item {
+        color: $d-muted !important;
+
+        &:hover,
+        &:focus-visible {
+            color: $d-ink !important;
+        }
+
+        &.fi-active {
+            border-bottom: 2px solid $d-ink !important;
+
+            .fi-tabs-item-label,
+            & > .fi-icon {
+                color: $d-ink !important;
+            }
+        }
+    }
+}

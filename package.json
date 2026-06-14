@@ -4,12 +4,15 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "css": "sass resources/scss/admin.scss:public/css/admin.css resources/scss/landing.scss:public/css/landing.css --style=compressed --no-source-map",
+        "css:watch": "sass --watch resources/scss/admin.scss:public/css/admin.css resources/scss/landing.scss:public/css/landing.css --style=compressed --no-source-map"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^3.1",
+        "sass": "1.69.6",
         "tailwindcss": "^4.0.0",
         "vite": "^8.0.0"
     }
