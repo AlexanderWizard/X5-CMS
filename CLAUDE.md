@@ -1,4 +1,4 @@
-# CLAUDE.md — notify_service
+# CLAUDE.md — x5 skeleton
 
 Инструкции для Claude Code при работе с этим репозиторием.
 
@@ -7,7 +7,7 @@
 ## Стек
 
 - **Laravel 13.14.0**, PHP 8.3.6
-- **MySQL 5.6** — IP `127.127.126.24:3306`, БД `notify_service`, пользователь `root`, пароль пустой
+- **MySQL 5.6** — IP `127.127.126.24:3306`, БД `x5_cms`, пользователь `root`, пароль пустой
 - **Filament v4** — админ-панель (`/admin`)
 - **l5-swagger** (`darkaonline/l5-swagger ^11.0`) — Swagger UI (`/docs`)
 - **OpenServer**, домен `laraval.local`
@@ -42,7 +42,7 @@ php artisan route:clear            # Очистка кэша маршрутов
 DB_CONNECTION=mysql
 DB_HOST=127.127.126.24
 DB_PORT=3306
-DB_DATABASE=notify_service
+DB_DATABASE=x5_cms
 DB_USERNAME=root
 DB_PASSWORD=
 ```
