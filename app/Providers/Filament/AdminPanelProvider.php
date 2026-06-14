@@ -37,7 +37,7 @@ class AdminPanelProvider extends PanelProvider
             ->authGuard('admin')
 
             // Брендинг
-            ->brandName('Notify Service')
+            ->brandName('X5-CMS')
             ->brandLogo(fn (): string => asset('images/logo.svg') . '?v=' . filemtime(public_path('images/logo.svg')))
             ->darkModeBrandLogo(fn (): string => asset('images/logo.svg') . '?v=' . filemtime(public_path('images/logo.svg')))
             ->brandLogoHeight('2rem')
