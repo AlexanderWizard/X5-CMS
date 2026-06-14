@@ -4,6 +4,7 @@ namespace App\Modules\Cms\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Cms\Models\Page;
+use App\Modules\System\Models\Setting;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Blade;
@@ -53,7 +54,8 @@ class PageController extends Controller
             'children' => $children,
             'title'    => $page->title,
             'content'  => $page->content,
-            'appName'  => config('app.name', 'Site'),
+            'appName'  => Setting::get('site_name', config('app.name', 'Site')),
+            'settings' => Setting::allValues(),
         ];
 
         // Если у страницы есть шаблон с телом — рендерим его Blade-разметку.

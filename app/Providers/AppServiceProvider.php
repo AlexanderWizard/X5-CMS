@@ -42,6 +42,11 @@ class AppServiceProvider extends ServiceProvider
             return "<?php echo \\App\\Modules\\Cms\\Support\\TemplateRenderer::block({$expression}); ?>";
         });
 
+        // Директива @setting('key' [, $default]) — значение глобальной настройки (экранируется)
+        Blade::directive('setting', function (string $expression): string {
+            return "<?php echo e(\\App\\Modules\\System\\Models\\Setting::get({$expression})); ?>";
+        });
+
         // Применяем локаль пользователя как только auth будет доступен
         $this->callAfterResolving('auth', function () {
             $user = auth('admin')->user();

@@ -1,8 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" fill="none">
-  <g fill="#f97316">
-    <rect x="0"    y="0"    width="11" height="11" rx="2.5"/>
-    <rect x="15"   y="0"    width="11" height="11" rx="2.5" fill-opacity="0.7"/>
-    <rect x="0"    y="15"   width="11" height="11" rx="2.5" fill-opacity="0.7"/>
-    <rect x="15"   y="15"   width="11" height="11" rx="2.5"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 116 40" fill="none">
+  <defs>
+    <mask id="x5cut">
+      <rect x="0" y="0" width="40" height="40" fill="#fff"/>
+      <g stroke="#000" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M9 13 L18 27 M9 27 L18 13"/>
+        <path d="M23 13 H31 M23 13 V20 H28 C34 20 34 27 26 27 C24 27 23 26.6 22.6 26"/>
+      </g>
+    </mask>
+  </defs>
+
+  <!-- Тайл с вырезанным «X5» (просвечивает фон → работает на любой теме) -->
+  <rect x="2" y="2" width="36" height="36" rx="10" fill="#f97316" mask="url(#x5cut)"/>
+
+  <!-- Слоган: серый текст рядом с лого -->
+  <text x="46" y="18.5"
+        font-family="'Segoe UI', system-ui, -apple-system, Arial, sans-serif"
+        font-size="11.5" font-weight="500" letter-spacing="0.2" fill="#8b95a3">AI powered</text>
+  <text x="46" y="31"
+        font-family="'Segoe UI', system-ui, -apple-system, Arial, sans-serif"
+        font-size="11.5" font-weight="500" letter-spacing="0.2" fill="#8b95a3">CMS</text>
 </svg>
