@@ -11,6 +11,8 @@ use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -48,6 +50,11 @@ class PageResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
+            Tabs::make()
+                ->columnSpanFull()
+                ->tabs([
+                    Tab::make(__('admin.cms.pages.tab.page'))
+                        ->schema([
             Section::make(__('admin.cms.pages.section.main'))
                 ->schema([
                     Forms\Components\Select::make('parent_id')
@@ -126,6 +133,27 @@ class PageResource extends Resource
                         ->label(__('admin.cms.pages.field.content'))
                         ->extraInputAttributes(['style' => 'min-height: 24rem;'])
                         ->columnSpanFull(),
+                ]),
+                        ]),
+
+                    Tab::make(__('admin.cms.pages.tab.seo'))
+                        ->schema([
+                            Forms\Components\TextInput::make('meta_title')
+                                ->label(__('admin.cms.pages.field.meta_title'))
+                                ->maxLength(191)
+                                ->helperText(__('admin.cms.pages.field.meta_title_hint')),
+
+                            Forms\Components\TextInput::make('meta_keywords')
+                                ->label(__('admin.cms.pages.field.meta_keywords'))
+                                ->maxLength(255)
+                                ->helperText(__('admin.cms.pages.field.meta_keywords_hint')),
+
+                            Forms\Components\Textarea::make('meta_description')
+                                ->label(__('admin.cms.pages.field.meta_description'))
+                                ->maxLength(500)
+                                ->rows(4)
+                                ->helperText(__('admin.cms.pages.field.meta_description_hint')),
+                        ]),
                 ]),
         ])->columns(1);
     }

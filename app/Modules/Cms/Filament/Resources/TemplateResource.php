@@ -190,6 +190,14 @@ class TemplateResource extends Resource
                     ->toggleable(),
             ])
             ->defaultSort('id', 'asc')
+            ->filters([
+                Tables\Filters\SelectFilter::make('is_system')
+                    ->label(__('admin.cms.templates.filter.type'))
+                    ->options([
+                        '0' => __('admin.cms.templates.tab.pages'),
+                        '1' => __('admin.cms.templates.tab.system'),
+                    ]),
+            ])
             ->recordUrl(fn (Template $record) => static::getUrl('edit', ['record' => $record]))
             ->actions([
                 ReplicateAction::make()

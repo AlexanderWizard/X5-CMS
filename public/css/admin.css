@@ -1,6 +1,10 @@
 /* ============================================================
-   SIDEBAR — фон
+   SIDEBAR — фон / ширина
    ============================================================ */
+:root {
+    --sidebar-width: 14.3rem !important;   /* 13rem + 10% */
+}
+
 .fi-sidebar,
 .fi-main-sidebar {
     background-color: #292929 !important;
@@ -297,4 +301,54 @@
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
+}
+
+/* ============================================================
+   ТАБЫ — стиль «подчёркивание активного»
+   ============================================================ */
+.fi-tabs {
+    gap: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    overflow: visible !important;   /* убираем скроллбар-артефакт (↕) */
+    padding-left: 25px !important;   /* отступ табов от левого края */
+}
+
+/* Прячем оверфлоу-дропдаун табов (артефакт со стрелками ↕ справа) */
+.fi-tabs .fi-dropdown {
+    display: none !important;
+}
+
+.fi-tabs-item {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    border-radius: 0 !important;
+    margin-bottom: -1px !important;
+    padding: 1.15rem 1.5rem 0.5rem !important;
+    color: #6b7280 !important;
+    font-weight: 500 !important;
+}
+
+.fi-tabs-item:hover,
+.fi-tabs-item:focus-visible {
+    background: transparent !important;
+    color: #111827 !important;
+}
+
+.fi-tabs-item.fi-active {
+    background: transparent !important;
+    border-bottom: 2px solid #111827 !important;
+}
+
+.fi-tabs-item.fi-active .fi-tabs-item-label,
+.fi-tabs-item.fi-active > .fi-icon {
+    color: #111827 !important;
+    font-weight: 700 !important;
 }

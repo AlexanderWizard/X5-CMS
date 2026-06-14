@@ -438,6 +438,23 @@ crontab -e
 - Контент: `padding-inline: 1.5rem`, фон `#f3f4f6`
 - Секции без `fi-section-not-contained` получают белый фон с рамкой
 - Для виджетов stats (`fi-section-not-contained`): прозрачный фон, без рамки
+- Ширина сайдбара: переопределена `--sidebar-width: 14.3rem` (контент сдвигается сам)
+- Таблицы: тело строк компактное — `padding-block` задан на контенте ячейки
+  (`.fi-ta-row .fi-ta-text/.fi-ta-color/.fi-ta-icon`, ~0.35rem), заголовки не трогаем;
+  у `.fi-ta-ctn` НЕ ставить `overflow:hidden` (обрезает дропдаун фильтров)
+
+### Табы — глобальный стиль «подчёркивание активного»
+
+Применяется ко всем табам админки (правила в `admin.css`, нацелены на `.fi-tabs`/`.fi-tabs-item`):
+- `.fi-tabs` — прозрачный фон, нижняя линия `1px #e5e7eb`, без скруглений/паддингов,
+  `overflow: visible` (иначе появляется скроллбар-артефакт ↕ от `overflow-x:auto`),
+  `padding-left: 25px`, выравнивание влево
+- `.fi-tabs-item` — без «пилюль», серый `#6b7280`, `border-bottom: 2px transparent`,
+  `margin-bottom: -1px`, паддинг `1.15rem 1.5rem 0.5rem` (текст прижат к линии)
+- `.fi-tabs-item.fi-active` — `border-bottom: 2px #111827`, текст чёрный жирный
+- `.fi-tabs .fi-dropdown { display:none }` — на всякий случай прячем оверфлоу-дропдаун
+- В коде у `Tabs` иконки не задаём; `contained` оставляем по умолчанию (true) —
+  `contained(false)` ломает раскладку (правый дропдаун со стрелками)
 
 ---
 
