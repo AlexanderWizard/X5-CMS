@@ -1,11 +1,12 @@
 // ============================================================
 //  Лендинг CMS — тёмная тема (исходник)
-//  Компиляция: npx sass resources/scss/landing.scss public/css/landing.css --style=compressed
+//  Сборка: npm run css  (sass … --style=compressed --no-source-map)
 // ============================================================
 
 // --- Палитра ---
 $accent:  #f97316;
 $accent2: #fb923c;
+$indigo:  #6366f1;
 $bg:      #0b1120;
 $bg2:     #0f172a;
 $card:    #111c34;
@@ -13,32 +14,18 @@ $line:    #1e293b;
 $ink:     #e2e8f0;
 $muted:   #94a3b8;
 
-// --- Миксины ---
 @mixin card {
     background: $card;
     border: 1px solid $line;
     border-radius: 14px;
 }
 
-// --- Анимации ---
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes pop {
-    from { opacity: 0; transform: scale(.85); }
-    to   { opacity: 1; transform: scale(1); }
-}
-@keyframes floaty {
-    0%, 100% { transform: translate(0, 0); }
-    50%      { transform: translate(20px, 25px); }
-}
-@keyframes shimmer {
-    0%   { background-position: 0% 50%; }
-    100% { background-position: 200% 50%; }
-}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes floaty { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(20px, 25px); } }
+@keyframes shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+@keyframes blink { 50% { opacity: 0; } }
 
-// --- База ---
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 
@@ -51,259 +38,263 @@ body {
     overflow-x: hidden;
 }
 
-.wrap { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+.wrap { max-width: 1140px; margin: 0 auto; padding: 0 1.5rem; }
 
-.anim {
-    opacity: 0;
-    animation: fadeUp .8s cubic-bezier(.22, 1, .36, 1) forwards;
-}
-.d1 { animation-delay: .05s; }
-.d2 { animation-delay: .18s; }
-.d3 { animation-delay: .31s; }
-.d4 { animation-delay: .44s; }
+.anim { opacity: 0; animation: fadeUp .8s cubic-bezier(.22, 1, .36, 1) forwards; }
+.d1 { animation-delay: .05s; } .d2 { animation-delay: .16s; }
+.d3 { animation-delay: .27s; } .d4 { animation-delay: .38s; } .d5 { animation-delay: .49s; }
 
 // --- Кнопки ---
 .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: .5rem;
-    padding: .7rem 1.4rem;
-    border-radius: .7rem;
-    font-weight: 600;
-    font-size: .95rem;
-    text-decoration: none;
-    transition: transform .15s, box-shadow .15s, filter .15s, border-color .15s;
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .75rem 1.5rem; border-radius: .7rem;
+    font-weight: 600; font-size: .95rem; text-decoration: none;
+    transition: transform .15s, box-shadow .15s, filter .15s, border-color .15s, color .15s;
 
     &-primary {
         color: #fff;
         background: linear-gradient(135deg, $accent2, $accent);
         box-shadow: 0 12px 26px -8px rgba($accent, .6);
-
         &:hover { transform: translateY(-2px); filter: brightness(1.08); }
     }
-
     &-ghost {
-        color: $ink;
-        background: rgba(#fff, .04);
-        border: 1px solid $line;
-
-        &:hover { border-color: $accent; color: $accent; }
+        color: $ink; background: rgba(#fff, .04); border: 1px solid $line;
+        &:hover { border-color: $accent; color: $accent2; }
     }
 }
 
 // --- Хедер ---
 header.nav {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    background: rgba($bg, .72);
-    backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 50;
+    background: rgba($bg, .72); backdrop-filter: blur(12px);
     border-bottom: 1px solid $line;
-
     .wrap { display: flex; align-items: center; gap: 1rem; height: 68px; }
 }
-
 .brand {
-    display: flex;
-    align-items: center;
-    gap: .6rem;
-    font-weight: 800;
-    font-size: 1.15rem;
-    color: $ink;
-    text-decoration: none;
-
+    display: flex; align-items: center; gap: .6rem;
+    font-weight: 800; font-size: 1.15rem; color: $ink; text-decoration: none;
     .logo {
-        width: 28px;
-        height: 28px;
-        border-radius: 8px;
-        background: linear-gradient(135deg, $accent2, $accent);
-        box-shadow: 0 4px 18px rgba($accent, .55);
+        width: 30px; height: 30px; display: block;
+        filter: drop-shadow(0 4px 14px rgba($accent, .5));
     }
 }
-
 .nav-links {
-    margin-left: auto;
-    display: flex;
-    gap: 1.5rem;
-    font-size: .93rem;
-    font-weight: 500;
-
-    a { color: $muted; text-decoration: none; transition: color .15s; &:hover { color: $accent; } }
+    margin-left: auto; display: flex; gap: 1.5rem; font-size: .93rem; font-weight: 500;
+    a { color: $muted; text-decoration: none; transition: color .15s; &:hover { color: $accent2; } }
 }
 
-// --- Hero ---
+// --- Hero (2 колонки) ---
 .hero {
-    position: relative;
-    overflow: hidden;
+    position: relative; overflow: hidden;
     background:
-        radial-gradient(900px 420px at 75% -10%, rgba($accent, .22), transparent 60%),
+        radial-gradient(900px 460px at 80% -10%, rgba($accent, .22), transparent 60%),
+        radial-gradient(700px 400px at 5% 10%, rgba($indigo, .16), transparent 60%),
         linear-gradient(180deg, $bg, $bg2);
 
-    &::before, &::after {
-        content: "";
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(90px);
-        z-index: 0;
-        pointer-events: none;
-    }
-    &::before {
-        width: 420px; height: 420px;
-        background: rgba($accent, .25);
-        top: -140px; left: -80px;
-        animation: floaty 12s ease-in-out infinite;
-    }
-    &::after {
-        width: 360px; height: 360px;
-        background: rgba(#6366f1, .18);
-        bottom: -160px; right: -60px;
-        animation: floaty 15s ease-in-out infinite reverse;
-    }
+    &::before, &::after { content: ""; position: absolute; border-radius: 50%; filter: blur(90px); z-index: 0; pointer-events: none; }
+    &::before { width: 420px; height: 420px; background: rgba($accent, .22); top: -150px; left: -90px; animation: floaty 13s ease-in-out infinite; }
+    &::after  { width: 360px; height: 360px; background: rgba($indigo, .20); bottom: -170px; right: -70px; animation: floaty 16s ease-in-out infinite reverse; }
 
-    .wrap { position: relative; z-index: 1; padding: 5.5rem 1.5rem 5rem; text-align: center; }
+    .wrap {
+        position: relative; z-index: 1;
+        display: grid; grid-template-columns: 1.05fr .95fr; gap: 3rem; align-items: center;
+        padding: 5rem 1.5rem 4.5rem;
+    }
 
     h1 {
-        font-size: clamp(2.3rem, 5.5vw, 3.8rem);
-        line-height: 1.07;
-        font-weight: 900;
-        letter-spacing: -.02em;
-        margin: 0 0 1.2rem;
-
+        font-size: clamp(2.2rem, 4.6vw, 3.6rem); line-height: 1.06;
+        font-weight: 900; letter-spacing: -.02em; margin: 0 0 1.2rem;
         .grad {
             background: linear-gradient(100deg, $accent2, #fff, $accent);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shimmer 4s linear infinite;
+            background-size: 200% auto; -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; animation: shimmer 4s linear infinite;
         }
     }
-
-    p.lead { font-size: 1.15rem; color: $muted; max-width: 640px; margin: 0 auto 2.3rem; }
-    .actions { display: flex; gap: .9rem; justify-content: center; flex-wrap: wrap; }
+    p.lead { font-size: 1.12rem; color: $muted; max-width: 540px; margin: 0 0 2rem; }
+    .actions { display: flex; gap: .9rem; flex-wrap: wrap; }
 }
 
 .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: .45rem;
-    padding: .4rem .9rem;
-    border-radius: 999px;
-    background: rgba($accent, .1);
-    border: 1px solid rgba($accent, .35);
-    color: $accent2;
-    font-size: .8rem;
-    font-weight: 600;
-    margin-bottom: 1.6rem;
+    display: inline-flex; align-items: center; gap: .45rem;
+    padding: .4rem .9rem; border-radius: 999px;
+    background: rgba($accent, .1); border: 1px solid rgba($accent, .35);
+    color: $accent2; font-size: .8rem; font-weight: 600; margin-bottom: 1.6rem;
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: $accent; animation: pulse 2s ease-in-out infinite; }
 }
+
+// Доверие — пилюли под героем
+.trust { display: flex; gap: .55rem; flex-wrap: wrap; margin-top: 2rem; }
+.trust span {
+    font-size: .78rem; font-weight: 600; color: $muted;
+    padding: .35rem .75rem; border-radius: 999px;
+    background: rgba(#fff, .03); border: 1px solid $line;
+}
+
+// Hero-визуал: стеклянная карточка с примером API
+.code-card {
+    @include card; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 30px 70px -30px rgba(#000, .8), 0 0 0 1px rgba($accent, .08);
+    transform: perspective(1000px) rotateY(-6deg) rotateX(3deg);
+
+    .bar {
+        display: flex; align-items: center; gap: .5rem;
+        padding: .8rem 1rem; border-bottom: 1px solid $line; background: rgba(#000, .2);
+        i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+        i:nth-child(1) { background: #ef4444; } i:nth-child(2) { background: #f59e0b; } i:nth-child(3) { background: #22c55e; }
+        small { margin-left: .4rem; color: $muted; font-size: .76rem; font-family: ui-monospace, monospace; }
+    }
+    pre {
+        margin: 0; padding: 1.3rem 1.4rem;
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        font-size: .82rem; line-height: 1.8; color: $ink; white-space: pre-wrap;
+    }
+    .k { color: $accent2; } .s { color: #4ade80; } .m { color: $muted; } .ok { color: #22c55e; font-weight: 700; }
+    .ai { color: #a78bfa; font-weight: 700; letter-spacing: .04em; } .u { color: $accent2; font-weight: 600; }
+
+    // Typewriter: курсор и построчное появление ответа (включается классом .tw-on из JS)
+    .cur { display: none; color: $accent2; font-weight: 400; }
+    .line { transition: opacity .4s, transform .4s; }
+    &.tw-on .cur { display: inline-block; animation: blink 1.05s steps(1) infinite; }
+    &.tw-on .line { display: inline-block; opacity: 0; transform: translateY(5px); }
+    .line.show { opacity: 1; transform: none; }
+}
+
+// --- Полоса метрик ---
+.stats { border-top: 1px solid $line; border-bottom: 1px solid $line; background: rgba(#000, .15); }
+.stats .wrap {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+    padding: 2.2rem 1.5rem; text-align: center;
+}
+.stat b {
+    display: block; font-size: 2rem; font-weight: 900; letter-spacing: -.02em;
+    background: linear-gradient(135deg, $accent2, $accent);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.stat span { color: $muted; font-size: .88rem; }
 
 // --- Контент страницы ---
 section.content {
-    padding: 3.5rem 0;
-
+    padding: 3.5rem 0 1rem;
     .card {
-        @include card;
-        border-radius: 16px;
-        padding: 2.5rem;
+        @include card; border-radius: 16px; padding: 2.2rem 2.5rem;
         box-shadow: 0 20px 50px -20px rgba(#000, .6);
-
         :where(h1, h2, h3) { color: #fff; letter-spacing: -.01em; }
         img { max-width: 100%; height: auto; border-radius: 10px; }
     }
-
     .placeholder { color: $muted; font-style: italic; text-align: center; }
 }
 
+// --- Заголовок секции ---
+.sec-head { text-align: center; margin: 0 auto 2.6rem; max-width: 600px; }
+.sec-head .eyebrow { color: $accent2; font-weight: 700; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; }
+.sec-head h2 { font-size: clamp(1.7rem, 3.4vw, 2.2rem); font-weight: 800; letter-spacing: -.02em; margin: .4rem 0 .5rem; color: #fff; }
+.sec-head p { color: $muted; margin: 0; }
+
 // --- Возможности ---
-section.features {
-    padding: 3.5rem 0 1rem;
-
-    h2 { text-align: center; font-size: 2rem; font-weight: 800; letter-spacing: -.02em; margin: 0 0 .5rem; color: #fff; }
-    .sub { text-align: center; color: $muted; margin: 0 auto 2.6rem; max-width: 540px; }
-}
-
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.2rem; }
+section.features { padding: 4rem 0 1rem; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.2rem; }
 
 .feature {
-    @include card;
-    padding: 1.7rem;
+    @include card; padding: 1.7rem; position: relative;
     transition: transform .2s, box-shadow .2s, border-color .2s;
-
-    &:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 24px 40px -18px rgba($accent, .25);
-        border-color: rgba($accent, .45);
-    }
+    &:hover { transform: translateY(-5px); box-shadow: 0 24px 40px -18px rgba($accent, .25); border-color: rgba($accent, .45); }
 
     .ic {
-        width: 48px; height: 48px;
-        border-radius: 12px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.5rem;
-        background: linear-gradient(135deg, rgba($accent, .18), rgba($accent, .06));
-        border: 1px solid rgba($accent, .2);
-        margin-bottom: 1rem;
+        width: 48px; height: 48px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center; margin-bottom: 1.1rem;
+        background: linear-gradient(135deg, rgba($accent, .2), rgba($accent, .05));
+        border: 1px solid rgba($accent, .25);
+        svg { width: 24px; height: 24px; stroke: $accent2; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
     }
-    h3 { margin: .2rem 0 .4rem; font-size: 1.12rem; color: #fff; }
+    h3 { margin: .2rem 0 .45rem; font-size: 1.12rem; color: #fff; }
     p  { margin: 0; color: $muted; font-size: .94rem; }
+}
+
+// --- Как это работает ---
+section.steps { padding: 4rem 0 1rem; }
+.steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; counter-reset: step; }
+.step {
+    @include card; padding: 1.8rem; position: relative;
+    .n {
+        width: 38px; height: 38px; border-radius: 10px; margin-bottom: 1rem;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; color: #fff; font-size: 1.05rem;
+        background: linear-gradient(135deg, $accent2, $accent);
+        box-shadow: 0 8px 20px -6px rgba($accent, .6);
+    }
+    h3 { margin: 0 0 .4rem; color: #fff; font-size: 1.08rem; }
+    p { margin: 0; color: $muted; font-size: .92rem; }
 }
 
 // --- Разделы (дочерние страницы) ---
 section.subpages {
-    padding: 2.5rem 0;
-
+    padding: 3rem 0 1rem;
     h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: .06em; color: $muted; margin-bottom: 1rem; }
-
     .grid a {
-        @include card;
-        border-radius: 12px;
-        display: block;
-        padding: 1rem 1.2rem;
-        font-weight: 600;
-        color: $ink;
-        text-decoration: none;
+        @include card; border-radius: 12px; display: block; padding: 1rem 1.2rem;
+        font-weight: 600; color: $ink; text-decoration: none;
         transition: border-color .15s, transform .15s;
-
         &:hover { border-color: $accent; transform: translateY(-2px); }
     }
 }
 
+// --- Отзывы ---
+section.reviews { padding: 4rem 0 1rem; }
+.review {
+    @include card; padding: 1.6rem 1.7rem;
+    display: flex; flex-direction: column; gap: 1rem;
+    transition: transform .2s, border-color .2s;
+    &:hover { transform: translateY(-4px); border-color: rgba($accent, .4); }
+
+    .stars { color: $accent; letter-spacing: 2px; font-size: .95rem; }
+    p { margin: 0; color: $ink; font-size: .98rem; line-height: 1.6; }
+    .who { display: flex; align-items: center; gap: .7rem; margin-top: auto; }
+    .av {
+        width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; color: #fff; font-size: .9rem;
+        background: linear-gradient(135deg, $accent2, $accent);
+    }
+    .who b { display: block; color: #fff; font-size: .92rem; font-weight: 600; }
+    .who span { color: $muted; font-size: .82rem; }
+}
+
 // --- CTA ---
 section.cta {
-    padding: 1.5rem 0 4.5rem;
-
+    padding: 4rem 0 5rem;
     .band {
-        background: linear-gradient(135deg, #1e293b, $bg);
-        border: 1px solid $line;
-        border-radius: 20px;
-        padding: 3.2rem 2rem;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-
+        background:
+            radial-gradient(600px 300px at 80% 0%, rgba($accent, .25), transparent 60%),
+            linear-gradient(135deg, #1e293b, $bg);
+        border: 1px solid $line; border-radius: 22px;
+        padding: 3.4rem 2rem; text-align: center; position: relative; overflow: hidden;
         &::after {
-            content: "";
-            position: absolute;
-            width: 340px; height: 340px;
-            right: -80px; top: -90px;
+            content: ""; position: absolute; width: 340px; height: 340px; right: -80px; top: -90px;
             background: radial-gradient(circle, rgba($accent, .4), transparent 70%);
-            filter: blur(20px);
-            animation: floaty 14s ease-in-out infinite;
+            filter: blur(20px); animation: floaty 14s ease-in-out infinite;
         }
     }
-    h2 { font-size: 1.9rem; font-weight: 800; margin: 0 0 .6rem; color: #fff; position: relative; }
+    h2 { font-size: clamp(1.6rem, 3.2vw, 2rem); font-weight: 800; margin: 0 0 .6rem; color: #fff; position: relative; }
     p  { color: $muted; margin: 0 0 1.7rem; position: relative; }
+    .actions { display: flex; gap: .9rem; justify-content: center; flex-wrap: wrap; position: relative; }
 }
 
 // --- Футер ---
 footer.site {
     border-top: 1px solid $line;
-
     .wrap {
-        display: flex; flex-wrap: wrap; gap: 1rem;
-        align-items: center; justify-content: space-between;
-        padding: 2rem 1.5rem;
-        color: $muted;
-        font-size: .9rem;
+        display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between;
+        padding: 2rem 1.5rem; color: $muted; font-size: .9rem;
     }
+}
+
+// --- Адаптив ---
+@media (max-width: 900px) {
+    .hero .wrap { grid-template-columns: 1fr; text-align: center; gap: 2.5rem; }
+    .hero p.lead { margin-left: auto; margin-right: auto; }
+    .hero .actions, .trust { justify-content: center; }
+    .code-card { transform: none; max-width: 480px; margin: 0 auto; }
+    .stats .wrap { grid-template-columns: repeat(2, 1fr); gap: 1.6rem; }
+    .steps-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
 }
