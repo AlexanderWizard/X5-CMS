@@ -14,9 +14,9 @@ class EditTemplate extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            // Системные шаблоны удалять нельзя
+            // Системные и дефолтный шаблоны удалять нельзя
             Actions\DeleteAction::make()
-                ->visible(fn (Template $record) => !$record->is_system),
+                ->visible(fn (Template $record) => !$record->isProtected()),
         ];
     }
 

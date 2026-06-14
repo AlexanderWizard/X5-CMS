@@ -86,7 +86,14 @@ class PageResource extends Resource
 
                     Forms\Components\Select::make('template_id')
                         ->label(__('admin.cms.pages.field.template'))
-                        ->relationship('template', 'name')
+                        ->relationship(
+                            name: 'template',
+                            titleAttribute: 'name',
+                            // системные шаблоны (header/footer/menu/head) — это инклюды,
+                            // их нельзя назначать странице как основной шаблон
+                            modifyQueryUsing: fn ($query) => $query->where('is_system', 0),
+                        )
+                        ->default(fn () => \App\Modules\Cms\Models\Template::where('is_default', 1)->value('id'))
                         ->searchable()
                         ->preload()
                         ->placeholder(__('admin.cms.pages.field.template_default'))
@@ -113,12 +120,14 @@ class PageResource extends Resource
                 ->columns(2),
 
             Section::make(__('admin.cms.pages.section.content'))
+                ->columnSpanFull()
                 ->schema([
                     Forms\Components\RichEditor::make('content')
                         ->label(__('admin.cms.pages.field.content'))
+                        ->extraInputAttributes(['style' => 'min-height: 24rem;'])
                         ->columnSpanFull(),
                 ]),
-        ]);
+        ])->columns(1);
     }
 
     public static function table(Table $table): Table

@@ -189,6 +189,31 @@ class Page extends Model
     }
 
     /**
+     * Пункты главного меню — активные страницы верхнего уровня
+     * (корни и прямые дети главной), кроме самой главной.
+     *
+     * @return \Illuminate\Support\Collection<int, self>
+     */
+    public static function navItems(): \Illuminate\Support\Collection
+    {
+        $homeId = static::query()->where('is_home', 1)->value('id');
+
+        return static::query()
+            ->where('is_active', 1)
+            ->where('is_home', 0)
+            ->where(function ($q) use ($homeId) {
+                $q->whereNull('parent_id');
+
+                if ($homeId) {
+                    $q->orWhere('parent_id', $homeId);
+                }
+            })
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+    }
+
+    /**
      * Цепочка предков от верхнего уровня до самой страницы (для хлебных крошек),
      * без главной страницы-корня.
      *
