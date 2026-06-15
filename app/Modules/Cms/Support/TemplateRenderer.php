@@ -41,15 +41,20 @@ class TemplateRenderer
     protected static array $blockCache = [];
 
     /**
-     * Значение текстового блока по slug (вызывается из директивы @block).
+     * Локализованное значение текстового блока по slug (вызывается из директивы @block).
+     * Кэш на запрос с ключом «локаль:slug».
      */
     public static function block(string $slug): string
     {
-        if (!array_key_exists($slug, static::$blockCache)) {
-            static::$blockCache[$slug] = (string) (Block::query()->where('slug', $slug)->value('value') ?? '');
+        $key = \App\Modules\Cms\Models\Page::currentLocale() . ':' . $slug;
+
+        if (!array_key_exists($key, static::$blockCache)) {
+            $block = Block::query()->where('slug', $slug)->first();
+
+            static::$blockCache[$key] = (string) ($block?->localized() ?? '');
         }
 
-        return static::$blockCache[$slug];
+        return static::$blockCache[$key];
     }
 
     /**

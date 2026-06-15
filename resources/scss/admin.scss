@@ -319,6 +319,30 @@ $shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
     padding-block: 0.2rem !important;
 }
 
+// Глобально: кнопки действий в СТРОКАХ таблиц — только иконки, без подписей.
+// Экшены рендерятся как .fi-ac-link-action/.fi-ac-btn-action (.fi-link/.fi-btn);
+// подпись — «голый» текстовый узел без класса, поэтому прячем её font-size:0
+// (размер иконки фиксирован классом .fi-icon, от шрифта не зависит).
+.fi-ta-actions {
+    .fi-link,
+    .fi-btn,
+    .fi-ac-link-action,
+    .fi-ac-btn-action {
+        font-size: 0 !important;
+        gap: 0.15rem !important;
+    }
+
+    // Спиннер на кнопке при клике не нужен (есть центральный оверлей-лоадер):
+    // прячем индикатор загрузки, иконку держим видимой всегда.
+    .fi-loading-indicator {
+        display: none !important;
+    }
+
+    .fi-icon:not(.fi-loading-indicator) {
+        display: block !important;
+    }
+}
+
 .fi-ta-row td {
     font-size: 0.83rem !important;
     color: $ink-2 !important;
@@ -501,12 +525,16 @@ html.dark {
     position: fixed;
     inset: 0;
     z-index: 99999;
-    display: none;                     // wire:loading.flex переключит на flex
+    display: none;                     // переключается из JS
     align-items: center;
     justify-content: center;
     background: rgba(17, 17, 17, 0.35);
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
+    // Оверлей — чисто визуальный: клики проходят сквозь него. Иначе пока он
+    // виден (~0.5с при открытии), первый клик «съедается» им, а не модалкой —
+    // отсюда баг «закрывается со второго раза». Спиннер всё равно сам не кликается.
+    pointer-events: none;
 }
 
 .app-modal-loader__spinner {

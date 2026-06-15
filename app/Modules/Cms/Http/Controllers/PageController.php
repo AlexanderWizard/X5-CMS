@@ -13,10 +13,12 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class PageController extends Controller
 {
     /**
-     * Главная страница лендинга.
+     * Главная страница лендинга (/{locale}).
      */
-    public function home(): View|Response
+    public function home(string $locale): View|Response
     {
+        app()->setLocale($locale);
+
         $page = Page::home();
 
         if (!$page) {
@@ -27,17 +29,19 @@ class PageController extends Controller
     }
 
     /**
-     * Страница по иерархическому пути (about/team).
+     * Страница по иерархическому пути (/{locale}/about/team).
      */
-    public function show(string $path): View|Response
+    public function show(string $locale, string $path): View|Response
     {
+        app()->setLocale($locale);
+
         $page = Page::findByPath($path);
 
         if (!$page) {
             throw new NotFoundHttpException();
         }
 
-        // Главную отдаём только с "/", не дублируем по /home
+        // Главную отдаём только с "/{locale}", не дублируем по /{locale}/home
         if ($page->is_home) {
             throw new NotFoundHttpException();
         }
@@ -50,12 +54,16 @@ class PageController extends Controller
         $children = $page->children()->where('is_active', 1)->get();
 
         $data = [
-            'page'     => $page,
-            'children' => $children,
-            'title'    => $page->title,
-            'content'  => $page->content,
-            'appName'  => Setting::get('site_name', config('app.name', 'Site')),
-            'settings' => Setting::allValues(),
+            'page'            => $page,
+            'children'        => $children,
+            'locale'          => app()->getLocale(),
+            'title'           => $page->tr('title'),
+            'content'         => $page->tr('content'),
+            'metaTitle'       => $page->tr('meta_title'),
+            'metaDescription' => $page->tr('meta_description'),
+            'metaKeywords'    => $page->tr('meta_keywords'),
+            'appName'         => Setting::get('site_name', config('app.name', 'Site')),
+            'settings'        => Setting::allValues(),
         ];
 
         // Если у страницы есть шаблон с телом — рендерим его Blade-разметку.

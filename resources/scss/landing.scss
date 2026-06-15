@@ -83,6 +83,18 @@ header.nav {
     a { color: $muted; text-decoration: none; transition: color .15s; &:hover { color: $accent2; } }
 }
 
+// Переключатель языка
+.nav .lang {
+    display: flex; gap: .3rem;
+    a {
+        font-size: .78rem; font-weight: 700; color: $muted; text-decoration: none;
+        padding: .25rem .5rem; border-radius: .4rem; border: 1px solid $line;
+        transition: color .15s, border-color .15s, background .15s;
+        &:hover { color: $accent2; border-color: rgba($accent, .4); }
+        &.on { color: #fff; background: linear-gradient(135deg, $accent2, $accent); border-color: transparent; }
+    }
+}
+
 // --- Hero (2 колонки) ---
 .hero {
     position: relative; overflow: hidden;

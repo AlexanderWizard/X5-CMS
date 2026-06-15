@@ -1,9 +1,14 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ $locale ?? app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $page->title }}</title>
+    <title>{{ ($metaTitle ?? null) ?: ($title ?? $page->title) }}</title>
+    @if (!empty($metaDescription))<meta name="description" content="{{ $metaDescription }}">@endif
+    @if (!empty($metaKeywords))<meta name="keywords" content="{{ $metaKeywords }}">@endif
+    @foreach (\App\Modules\Cms\Models\Page::LOCALES as $l)
+        <link rel="alternate" hreflang="{{ $l }}" href="{{ $page->urlFor($l) }}">
+    @endforeach
     <style>
         :root { --accent: #ea580c; }
         * { box-sizing: border-box; }
@@ -41,42 +46,50 @@
         .children a:hover { border-color: var(--accent); transform: translateY(-1px); }
         footer.site { text-align: center; color: #9ca3af; font-size: 0.85rem; padding: 2rem 0; }
         .empty { color: #9ca3af; font-style: italic; }
+        .lang { margin-left: auto; display: flex; gap: 0.35rem; }
+        .lang a { font-size: 0.8rem; font-weight: 600; color: #6b7280; text-decoration: none; padding: 0.2rem 0.5rem; border-radius: 6px; border: 1px solid #e5e7eb; }
+        .lang a.on { color: #fff; background: var(--accent); border-color: var(--accent); }
     </style>
 </head>
 <body>
     <header class="site">
         <div class="wrap">
-            <a href="{{ url('/') }}" class="brand"><span class="dot"></span> {{ config('app.name', 'Site') }}</a>
+            <a href="{{ url($locale ?? 'en') }}" class="brand"><span class="dot"></span> {{ $appName ?? config('app.name', 'Site') }}</a>
+            <span class="lang">
+                @foreach (\App\Modules\Cms\Models\Page::LOCALES as $l)
+                    <a href="{{ $page->urlFor($l) }}" class="{{ ($locale ?? '') === $l ? 'on' : '' }}">{{ strtoupper($l) }}</a>
+                @endforeach
+            </span>
         </div>
     </header>
 
     <div class="wrap">
         @if (! $page->is_home)
             <nav class="crumbs">
-                <a href="{{ url('/') }}">{{ __('Главная') }}</a>
+                <a href="{{ url($locale ?? 'en') }}">{{ ($locale ?? '') === 'en' ? 'Home' : 'Главная' }}</a>
                 @foreach ($page->ancestorsTrail() as $crumb)
-                    / @if ($loop->last){{ $crumb->title }}@else<a href="{{ $crumb->url }}">{{ $crumb->title }}</a>@endif
+                    / @if ($loop->last){{ $crumb->tr('title') }}@else<a href="{{ $crumb->url }}">{{ $crumb->tr('title') }}</a>@endif
                 @endforeach
             </nav>
         @endif
 
         <main>
-            <h1 class="page-title">{{ $page->title }}</h1>
+            <h1 class="page-title">{{ $title ?? $page->title }}</h1>
 
             <article class="content">
-                @if (filled($page->content))
-                    {!! $page->content !!}
+                @if (filled($content ?? $page->content))
+                    {!! $content ?? $page->content !!}
                 @else
-                    <p class="empty">{{ __('Содержимое страницы пока не заполнено.') }}</p>
+                    <p class="empty">{{ ($locale ?? '') === 'en' ? 'This page has no content yet.' : 'Содержимое страницы пока не заполнено.' }}</p>
                 @endif
             </article>
 
             @if ($children->isNotEmpty())
                 <section class="children">
-                    <h2>{{ __('Разделы') }}</h2>
+                    <h2>{{ ($locale ?? '') === 'en' ? 'Sections' : 'Разделы' }}</h2>
                     <ul>
                         @foreach ($children as $child)
-                            <li><a href="{{ $child->url }}">{{ $child->title }}</a></li>
+                            <li><a href="{{ $child->url }}">{{ $child->tr('title') }}</a></li>
                         @endforeach
                     </ul>
                 </section>
@@ -84,6 +97,6 @@
         </main>
     </div>
 
-    <footer class="site">© {{ date('Y') }} {{ config('app.name', 'Site') }}</footer>
+    <footer class="site">© {{ date('Y') }} {{ $appName ?? config('app.name', 'Site') }}</footer>
 </body>
 </html>

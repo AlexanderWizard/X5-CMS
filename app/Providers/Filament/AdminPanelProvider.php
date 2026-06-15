@@ -130,10 +130,15 @@ class AdminPanelProvider extends PanelProvider
                             Livewire.hook('request', function (opts) {
                                 if (! opensModal(opts.payload)) return;
 
-                                var loader = document.querySelector('.app-modal-loader');
-                                if (loader) loader.style.display = 'flex';
+                                // Показываем оверлей только если открытие дольше 200мс —
+                                // на быстрых ответах он вообще не мелькает.
+                                var timer = setTimeout(function () {
+                                    var l = document.querySelector('.app-modal-loader');
+                                    if (l) l.style.display = 'flex';
+                                }, 200);
 
                                 var hide = function () {
+                                    clearTimeout(timer);
                                     var l = document.querySelector('.app-modal-loader');
                                     if (l) l.style.display = 'none';
                                 };

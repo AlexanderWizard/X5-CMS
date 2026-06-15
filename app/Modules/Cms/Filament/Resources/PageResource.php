@@ -50,11 +50,7 @@ class PageResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Tabs::make()
-                ->columnSpanFull()
-                ->tabs([
-                    Tab::make(__('admin.cms.pages.tab.page'))
-                        ->schema([
+            // Структурные поля — общие для всех языков
             Section::make(__('admin.cms.pages.section.main'))
                 ->schema([
                     Forms\Components\Select::make('parent_id')
@@ -64,7 +60,6 @@ class PageResource extends Resource
                             name: 'parent',
                             titleAttribute: 'title',
                             modifyQueryUsing: function ($query, ?Page $record) {
-                                // Нельзя выбрать саму страницу или её потомка (циклы)
                                 if ($record) {
                                     $query->whereNotIn('id', $record->descendantIds());
                                 }
@@ -72,17 +67,6 @@ class PageResource extends Resource
                         )
                         ->searchable()
                         ->preload(),
-
-                    Forms\Components\TextInput::make('title')
-                        ->label(__('admin.cms.pages.field.title'))
-                        ->required()
-                        ->maxLength(191)
-                        ->live(onBlur: true)
-                        ->afterStateUpdated(function (string $operation, $state, Set $set) {
-                            if ($operation === 'create') {
-                                $set('slug', Str::slug($state));
-                            }
-                        }),
 
                     Forms\Components\TextInput::make('slug')
                         ->label(__('admin.cms.pages.field.slug'))
@@ -96,8 +80,6 @@ class PageResource extends Resource
                         ->relationship(
                             name: 'template',
                             titleAttribute: 'name',
-                            // системные шаблоны (header/footer/menu/head) — это инклюды,
-                            // их нельзя назначать странице как основной шаблон
                             modifyQueryUsing: fn ($query) => $query->where('is_system', 0),
                         )
                         ->default(fn () => \App\Modules\Cms\Models\Template::where('is_default', 1)->value('id'))
@@ -126,36 +108,86 @@ class PageResource extends Resource
                 ])
                 ->columns(2),
 
-            Section::make(__('admin.cms.pages.section.content'))
+            // Контент и SEO — по вкладке на язык
+            Tabs::make()
                 ->columnSpanFull()
-                ->schema([
-                    Forms\Components\RichEditor::make('content')
-                        ->label(__('admin.cms.pages.field.content'))
-                        ->extraInputAttributes(['style' => 'min-height: 24rem;'])
-                        ->columnSpanFull(),
-                ]),
-                        ]),
-
-                    Tab::make(__('admin.cms.pages.tab.seo'))
-                        ->schema([
-                            Forms\Components\TextInput::make('meta_title')
-                                ->label(__('admin.cms.pages.field.meta_title'))
-                                ->maxLength(191)
-                                ->helperText(__('admin.cms.pages.field.meta_title_hint')),
-
-                            Forms\Components\TextInput::make('meta_keywords')
-                                ->label(__('admin.cms.pages.field.meta_keywords'))
-                                ->maxLength(255)
-                                ->helperText(__('admin.cms.pages.field.meta_keywords_hint')),
-
-                            Forms\Components\Textarea::make('meta_description')
-                                ->label(__('admin.cms.pages.field.meta_description'))
-                                ->maxLength(500)
-                                ->rows(4)
-                                ->helperText(__('admin.cms.pages.field.meta_description_hint')),
-                        ]),
+                ->tabs([
+                    Tab::make('English')->schema(self::localeFields('en'))->columns(2),
+                    Tab::make('Русский')->schema(self::localeFields('ru'))->columns(2),
                 ]),
         ])->columns(1);
+    }
+
+    /**
+     * Поля контента/SEO для одной локали (привязаны к i18n.{locale}.*).
+     *
+     * @return array<int, \Filament\Forms\Components\Field>
+     */
+    protected static function localeFields(string $loc): array
+    {
+        $title = Forms\Components\TextInput::make("i18n.{$loc}.title")
+            ->label(__('admin.cms.pages.field.title'))
+            ->maxLength(191)
+            ->columnSpanFull();
+
+        // У локали по умолчанию заголовок обязателен и из него генерируется slug
+        if ($loc === Page::DEFAULT_LOCALE) {
+            $title
+                ->required()
+                // debounce, НЕ onBlur (blur при «Отменить» в модалке съедает первый клик)
+                ->live(debounce: 500)
+                ->afterStateUpdated(function (string $operation, $state, Set $set) {
+                    if ($operation === 'create') {
+                        $set('slug', Str::slug($state));
+                    }
+                });
+        }
+
+        return [
+            $title,
+
+            Forms\Components\RichEditor::make("i18n.{$loc}.content")
+                ->label(__('admin.cms.pages.field.content'))
+                ->extraInputAttributes(['style' => 'min-height: 20rem;'])
+                ->columnSpanFull(),
+
+            Forms\Components\TextInput::make("i18n.{$loc}.meta_title")
+                ->label(__('admin.cms.pages.field.meta_title'))
+                ->maxLength(191)
+                ->helperText(__('admin.cms.pages.field.meta_title_hint')),
+
+            Forms\Components\TextInput::make("i18n.{$loc}.meta_keywords")
+                ->label(__('admin.cms.pages.field.meta_keywords'))
+                ->maxLength(255),
+
+            Forms\Components\Textarea::make("i18n.{$loc}.meta_description")
+                ->label(__('admin.cms.pages.field.meta_description'))
+                ->maxLength(500)
+                ->rows(3)
+                ->columnSpanFull(),
+        ];
+    }
+
+    /**
+     * Синхронизация legacy-колонок (title/content/meta) с локалью по умолчанию —
+     * чтобы дерево в админке и фолбэки работали как раньше.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    public static function syncDefaultLocale(array $data): array
+    {
+        $def  = Page::DEFAULT_LOCALE;
+        $i18n = $data['i18n'] ?? [];
+        $base = $i18n[$def] ?? ($i18n['ru'] ?? []);
+
+        $data['title']            = $base['title'] ?? ($data['title'] ?? 'Untitled');
+        $data['content']          = $base['content'] ?? null;
+        $data['meta_title']       = $base['meta_title'] ?? null;
+        $data['meta_description'] = $base['meta_description'] ?? null;
+        $data['meta_keywords']    = $base['meta_keywords'] ?? null;
+
+        return $data;
     }
 
     public static function table(Table $table): Table

@@ -20,6 +20,11 @@ class EditPage extends EditRecord
         ];
     }
 
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        return PageResource::syncDefaultLocale($data);
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');

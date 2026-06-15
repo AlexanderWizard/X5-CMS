@@ -24,6 +24,13 @@ class Page extends Model
 {
     use LogsActivity;
 
+    /** Поддерживаемые локали сайта и локаль по умолчанию (без префикса → редирект на неё). */
+    public const LOCALES = ['en', 'ru'];
+    public const DEFAULT_LOCALE = 'en';
+
+    /** Поля контента, которые переводятся (хранятся в i18n[locale]). */
+    public const TRANSLATABLE = ['title', 'content', 'meta_title', 'meta_description', 'meta_keywords'];
+
     protected $table = 'pages';
 
     public $timestamps = false;
@@ -37,17 +44,42 @@ class Page extends Model
         'meta_title',
         'meta_keywords',
         'meta_description',
+        'i18n',
         'is_home',
         'is_active',
         'sort_order',
     ];
 
     protected $casts = [
+        'i18n'       => 'array',
         'is_home'    => 'boolean',
         'is_active'  => 'boolean',
         'sort_order' => 'integer',
         'created_at' => 'datetime',
     ];
+
+    /**
+     * Локализованное значение поля контента: текущая локаль → локаль по умолчанию → колонка.
+     */
+    public function tr(string $field, ?string $locale = null): ?string
+    {
+        $locale = $locale ?: static::currentLocale();
+        $i18n   = $this->i18n ?? [];
+
+        return $i18n[$locale][$field]
+            ?? $i18n[static::DEFAULT_LOCALE][$field]
+            ?? $this->getAttribute($field);
+    }
+
+    /**
+     * Текущая локаль сайта (валидная из списка, иначе — по умолчанию).
+     */
+    public static function currentLocale(): string
+    {
+        $locale = app()->getLocale();
+
+        return in_array($locale, static::LOCALES, true) ? $locale : static::DEFAULT_LOCALE;
+    }
 
     protected static function booted(): void
     {
@@ -129,11 +161,21 @@ class Page extends Model
     }
 
     /**
-     * Публичный URL страницы (главная → "/").
+     * Публичный URL страницы с языковым префиксом (главная → "/{locale}").
      */
     public function getUrlAttribute(): string
     {
-        return $this->is_home ? url('/') : url($this->path);
+        $locale = static::currentLocale();
+
+        return $this->is_home ? url($locale) : url($locale . '/' . $this->path);
+    }
+
+    /**
+     * URL страницы под конкретной локалью (для переключателя языка).
+     */
+    public function urlFor(string $locale): string
+    {
+        return $this->is_home ? url($locale) : url($locale . '/' . $this->path);
     }
 
     /**

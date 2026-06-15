@@ -55,7 +55,9 @@ class BlockResource extends Resource
                         ->label(__('admin.cms.blocks.field.name'))
                         ->required()
                         ->maxLength(191)
-                        ->live(onBlur: true)
+                        // debounce, НЕ onBlur: иначе blur при клике на «Отменить» шлёт
+                        // Livewire-запрос и «съедает» первый клик по кнопке (нужно два раза)
+                        ->live(debounce: 500)
                         ->afterStateUpdated(function (string $operation, $state, Set $set) {
                             if ($operation === 'create') {
                                 $set('slug', Str::slug($state));
@@ -69,10 +71,22 @@ class BlockResource extends Resource
                         ->unique(ignoreRecord: true)
                         ->helperText(__('admin.cms.blocks.field.slug_hint')),
 
-                    Forms\Components\Textarea::make('value')
-                        ->label(__('admin.cms.blocks.field.value'))
-                        ->rows(3)
-                        ->columnSpanFull(),
+                    \Filament\Schemas\Components\Tabs::make()
+                        ->columnSpanFull()
+                        ->tabs([
+                            \Filament\Schemas\Components\Tabs\Tab::make('English')->schema([
+                                Forms\Components\Textarea::make('i18n.en')
+                                    ->label(__('admin.cms.blocks.field.value'))
+                                    ->rows(3)
+                                    ->columnSpanFull(),
+                            ]),
+                            \Filament\Schemas\Components\Tabs\Tab::make('Русский')->schema([
+                                Forms\Components\Textarea::make('i18n.ru')
+                                    ->label(__('admin.cms.blocks.field.value'))
+                                    ->rows(3)
+                                    ->columnSpanFull(),
+                            ]),
+                        ]),
                 ])
                 ->columns(2)
                 // секция должна занимать всю ширину формы (в модалке корневая
