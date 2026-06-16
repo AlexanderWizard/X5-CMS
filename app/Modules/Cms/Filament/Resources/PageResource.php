@@ -4,10 +4,12 @@ namespace App\Modules\Cms\Filament\Resources;
 
 use App\Modules\Cms\Filament\Resources\PageResource\Pages;
 use App\Modules\Cms\Models\Page;
+use App\Modules\System\Models\Language;
 use App\Modules\System\Filament\Concerns\AuthorizesWithPermissions;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -108,13 +110,16 @@ class PageResource extends Resource
                 ])
                 ->columns(2),
 
-            // Контент и SEO — по вкладке на язык
+            // Контент и SEO — по вкладке на каждый активный язык (управляется в админке)
             Tabs::make()
                 ->columnSpanFull()
-                ->tabs([
-                    Tab::make('English')->schema(self::localeFields('en'))->columns(2),
-                    Tab::make('Русский')->schema(self::localeFields('ru'))->columns(2),
-                ]),
+                ->tabs(
+                    Language::active()
+                        ->map(fn (Language $lang) => Tab::make($lang->name)
+                            ->schema(self::localeFields($lang->code))
+                            ->columns(2))
+                        ->all()
+                ),
         ])->columns(1);
     }
 
@@ -131,7 +136,7 @@ class PageResource extends Resource
             ->columnSpanFull();
 
         // У локали по умолчанию заголовок обязателен и из него генерируется slug
-        if ($loc === Page::DEFAULT_LOCALE) {
+        if ($loc === Language::default()) {
             $title
                 ->required()
                 // debounce, НЕ onBlur (blur при «Отменить» в модалке съедает первый клик)
@@ -177,9 +182,9 @@ class PageResource extends Resource
      */
     public static function syncDefaultLocale(array $data): array
     {
-        $def  = Page::DEFAULT_LOCALE;
+        $def  = Language::default();
         $i18n = $data['i18n'] ?? [];
-        $base = $i18n[$def] ?? ($i18n['ru'] ?? []);
+        $base = $i18n[$def] ?? (reset($i18n) ?: []);
 
         $data['title']            = $base['title'] ?? ($data['title'] ?? 'Untitled');
         $data['content']          = $base['content'] ?? null;
@@ -247,6 +252,14 @@ class PageResource extends Resource
             ])
             ->recordUrl(fn (Page $record) => static::getUrl('edit', ['record' => $record]))
             ->actions([
+                Action::make('clone')
+                    ->label(__('admin.cms.pages.action.clone'))
+                    ->icon('heroicon-o-document-duplicate')
+                    ->color('gray')
+                    ->requiresConfirmation()
+                    ->modalDescription(__('admin.cms.pages.action.clone_hint'))
+                    ->action(fn (Page $record) => self::clonePage($record)),
+
                 Action::make('open')
                     ->label(__('admin.cms.pages.action.open'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
@@ -254,6 +267,46 @@ class PageResource extends Resource
                     ->url(fn (Page $record) => $record->url, shouldOpenInNewTab: true)
                     ->visible(fn (Page $record) => $record->is_active),
             ]);
+    }
+
+    /**
+     * Клонировать страницу: копия с уникальным slug, тем же родителем/шаблоном
+     * и переведённым контентом. Главной копия не становится; дети НЕ копируются.
+     */
+    protected static function clonePage(Page $record): void
+    {
+        $copy = $record->replicate(['created_at']);
+
+        // Главной может быть только одна страница — копия ею не становится.
+        $copy->is_home = false;
+
+        // Уникальный slug: about → about-copy → about-copy-2 → ...
+        $base = $record->slug . '-copy';
+        $slug = $base;
+        $n    = 2;
+        while (Page::query()->where('slug', $slug)->exists()) {
+            $slug = $base . '-' . $n++;
+        }
+        $copy->slug = $slug;
+
+        // Пометка «копия» в заголовках всех локалей и в legacy-колонке title.
+        $suffix = ' (' . __('admin.cms.pages.clone_suffix') . ')';
+
+        $i18n = $copy->i18n ?? [];
+        foreach ($i18n as $loc => $fields) {
+            if (! empty($fields['title'])) {
+                $i18n[$loc]['title'] = $fields['title'] . $suffix;
+            }
+        }
+        $copy->i18n  = $i18n;
+        $copy->title = ($copy->title ?? 'Untitled') . $suffix;
+
+        $copy->save();
+
+        Notification::make()
+            ->success()
+            ->title(__('admin.cms.pages.clone_done'))
+            ->send();
     }
 
     public static function getPages(): array

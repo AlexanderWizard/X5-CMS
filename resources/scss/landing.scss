@@ -184,6 +184,18 @@ header.nav {
 }
 .stat span { color: $muted; font-size: .88rem; }
 
+// --- Хлебные крошки ---
+nav.breadcrumbs {
+    padding: 1.6rem 0 0;
+    font-size: .85rem;
+    color: $muted;
+    .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
+    a { color: $accent2; text-decoration: none; transition: color .15s; }
+    a:hover { color: $accent; text-decoration: underline; }
+    .sep { color: $line; user-select: none; }
+    .current { color: $ink; font-weight: 600; }
+}
+
 // --- Контент страницы ---
 section.content {
     padding: 3.5rem 0 1rem;

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Cms\Models;
 
+use App\Modules\System\Models\Language;
 use App\Modules\System\Support\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 
@@ -40,8 +41,8 @@ class Block extends Model
         // legacy-колонка value = значение локали по умолчанию (фолбэк/совместимость)
         static::saving(function (Block $block): void {
             $i18n = $block->i18n ?? [];
-            $block->value = $i18n[Page::DEFAULT_LOCALE]
-                ?? ($i18n['ru'] ?? $block->value);
+            $block->value = $i18n[Language::default()]
+                ?? ($block->value);
         });
     }
 
@@ -54,7 +55,7 @@ class Block extends Model
         $i18n   = $this->i18n ?? [];
 
         return $i18n[$locale]
-            ?? $i18n[Page::DEFAULT_LOCALE]
+            ?? $i18n[Language::default()]
             ?? $this->value;
     }
 }

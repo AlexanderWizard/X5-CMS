@@ -2,6 +2,7 @@
 
 namespace App\Modules\Cms\Models;
 
+use App\Modules\System\Models\Language;
 use App\Modules\System\Support\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,10 +24,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Page extends Model
 {
     use LogsActivity;
-
-    /** Поддерживаемые локали сайта и локаль по умолчанию (без префикса → редирект на неё). */
-    public const LOCALES = ['en', 'ru'];
-    public const DEFAULT_LOCALE = 'en';
 
     /** Поля контента, которые переводятся (хранятся в i18n[locale]). */
     public const TRANSLATABLE = ['title', 'content', 'meta_title', 'meta_description', 'meta_keywords'];
@@ -67,18 +64,18 @@ class Page extends Model
         $i18n   = $this->i18n ?? [];
 
         return $i18n[$locale][$field]
-            ?? $i18n[static::DEFAULT_LOCALE][$field]
+            ?? $i18n[Language::default()][$field]
             ?? $this->getAttribute($field);
     }
 
     /**
-     * Текущая локаль сайта (валидная из списка, иначе — по умолчанию).
+     * Текущая локаль сайта (валидная из списка языков, иначе — по умолчанию).
      */
     public static function currentLocale(): string
     {
         $locale = app()->getLocale();
 
-        return in_array($locale, static::LOCALES, true) ? $locale : static::DEFAULT_LOCALE;
+        return Language::isValid($locale) ? $locale : Language::default();
     }
 
     protected static function booted(): void

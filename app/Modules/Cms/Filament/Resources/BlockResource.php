@@ -5,12 +5,15 @@ namespace App\Modules\Cms\Filament\Resources;
 use App\Modules\Cms\Filament\Resources\BlockResource\Pages;
 use App\Modules\Cms\Models\Block;
 use App\Modules\System\Filament\Concerns\AuthorizesWithPermissions;
+use App\Modules\System\Models\Language;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
@@ -71,22 +74,18 @@ class BlockResource extends Resource
                         ->unique(ignoreRecord: true)
                         ->helperText(__('admin.cms.blocks.field.slug_hint')),
 
-                    \Filament\Schemas\Components\Tabs::make()
+                    Tabs::make()
                         ->columnSpanFull()
-                        ->tabs([
-                            \Filament\Schemas\Components\Tabs\Tab::make('English')->schema([
-                                Forms\Components\Textarea::make('i18n.en')
-                                    ->label(__('admin.cms.blocks.field.value'))
-                                    ->rows(3)
-                                    ->columnSpanFull(),
-                            ]),
-                            \Filament\Schemas\Components\Tabs\Tab::make('Русский')->schema([
-                                Forms\Components\Textarea::make('i18n.ru')
-                                    ->label(__('admin.cms.blocks.field.value'))
-                                    ->rows(3)
-                                    ->columnSpanFull(),
-                            ]),
-                        ]),
+                        ->tabs(
+                            Language::active()
+                                ->map(fn (Language $lang) => Tab::make($lang->name)->schema([
+                                    Forms\Components\Textarea::make("i18n.{$lang->code}")
+                                        ->label(__('admin.cms.blocks.field.value'))
+                                        ->rows(3)
+                                        ->columnSpanFull(),
+                                ]))
+                                ->all()
+                        ),
                 ])
                 ->columns(2)
                 // секция должна занимать всю ширину формы (в модалке корневая

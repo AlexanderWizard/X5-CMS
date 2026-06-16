@@ -17,7 +17,7 @@ return new class extends Migration
         <a href="{{ url($locale ?? 'en') }}" class="brand"><img class="logo" src="{{ asset('images/logo-mark.svg') }}" alt="{{ $appName }}"> {{ $appName }}</a>
         @partial('menu')
         <div class="lang">
-            @foreach (\App\Modules\Cms\Models\Page::LOCALES as $l)
+            @foreach (\App\Modules\System\Models\Language::codes() as $l)
                 <a href="{{ $page->urlFor($l) }}" class="{{ ($locale ?? '') === $l ? 'on' : '' }}">{{ strtoupper($l) }}</a>
             @endforeach
         </div>

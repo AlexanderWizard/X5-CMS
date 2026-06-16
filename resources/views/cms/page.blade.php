@@ -6,7 +6,7 @@
     <title>{{ ($metaTitle ?? null) ?: ($title ?? $page->title) }}</title>
     @if (!empty($metaDescription))<meta name="description" content="{{ $metaDescription }}">@endif
     @if (!empty($metaKeywords))<meta name="keywords" content="{{ $metaKeywords }}">@endif
-    @foreach (\App\Modules\Cms\Models\Page::LOCALES as $l)
+    @foreach (\App\Modules\System\Models\Language::codes() as $l)
         <link rel="alternate" hreflang="{{ $l }}" href="{{ $page->urlFor($l) }}">
     @endforeach
     <style>
@@ -56,7 +56,7 @@
         <div class="wrap">
             <a href="{{ url($locale ?? 'en') }}" class="brand"><span class="dot"></span> {{ $appName ?? config('app.name', 'Site') }}</a>
             <span class="lang">
-                @foreach (\App\Modules\Cms\Models\Page::LOCALES as $l)
+                @foreach (\App\Modules\System\Models\Language::codes() as $l)
                     <a href="{{ $page->urlFor($l) }}" class="{{ ($locale ?? '') === $l ? 'on' : '' }}">{{ strtoupper($l) }}</a>
                 @endforeach
             </span>

@@ -4,6 +4,7 @@ namespace App\Modules\System\Filament\Resources;
 
 use App\Modules\System\Filament\Concerns\AuthorizesWithPermissions;
 use App\Modules\System\Filament\Resources\TranslationResource\Pages;
+use App\Modules\System\Models\Language;
 use App\Modules\System\Models\Translation;
 use BackedEnum;
 use Filament\Forms;
@@ -25,11 +26,13 @@ class TranslationResource extends Resource
     protected static ?int                   $navigationSort  = 5;
     protected static ?string                $slug            = 'system/translations';
 
-    /** Доступные локали интерфейса. */
-    public const LOCALES = [
-        'ru' => 'Русский (ru)',
-        'en' => 'English (en)',
-    ];
+    /** Опции локалей для select/фильтра — из реестра языков: [code => "Name (code)"]. */
+    public static function localeOptions(): array
+    {
+        return Language::active()
+            ->mapWithKeys(fn (Language $l) => [$l->code => "{$l->name} ({$l->code})"])
+            ->all();
+    }
 
     public static function getNavigationLabel(): string
     {
@@ -57,7 +60,7 @@ class TranslationResource extends Resource
 
             Forms\Components\Select::make('locale')
                 ->label(__('admin.translations.field.locale'))
-                ->options(self::LOCALES)
+                ->options(self::localeOptions())
                 ->required()
                 ->native(false),
 
@@ -111,7 +114,7 @@ class TranslationResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('locale')
                     ->label(__('admin.translations.filter.locale'))
-                    ->options(self::LOCALES),
+                    ->options(self::localeOptions()),
 
                 Tables\Filters\SelectFilter::make('group')
                     ->label(__('admin.translations.filter.group'))

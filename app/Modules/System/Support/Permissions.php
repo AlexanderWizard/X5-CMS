@@ -50,6 +50,7 @@ class Permissions
                     'firewall'     => __('admin.firewall.model_plural'),
                     'actions'      => __('admin.actions.model_plural'),
                     'translations' => __('admin.translations.model_plural'),
+                    'languages'    => __('admin.languages.model_plural'),
                     'settings'     => __('admin.settings.nav'),
                 ],
             ],
