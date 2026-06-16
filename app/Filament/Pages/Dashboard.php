@@ -2,8 +2,7 @@
 
 namespace App\Filament\Pages;
 
-use App\Modules\Api\Filament\Widgets\QueueStatsWidget;
-use App\Modules\System\Filament\Widgets\SiteOverviewWidget;
+use App\Modules\System\Filament\Widgets\DashboardOverviewWidget;
 use BackedEnum;
 use Filament\Pages\Dashboard as BaseDashboard;
 
@@ -18,11 +17,20 @@ class Dashboard extends BaseDashboard
         return __('admin.nav.dashboard');
     }
 
+    public function getHeading(): string
+    {
+        return '';
+    }
+
+    public function getTitle(): string
+    {
+        return __('admin.nav.dashboard');
+    }
+
     public function getWidgets(): array
     {
         return [
-            SiteOverviewWidget::class,
-            QueueStatsWidget::class,
+            DashboardOverviewWidget::class,
         ];
     }
 

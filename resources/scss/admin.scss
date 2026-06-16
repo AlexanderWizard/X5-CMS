@@ -279,7 +279,7 @@ $shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
 
 .fi-wi-stats-overview-stat-value {
     font-size: 1.75rem !important;
-    font-weight: 700 !important;
+    font-weight: 400 !important;
     color: $ink !important;
 }
 
@@ -471,6 +471,198 @@ $shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 // ============================================================
+//  ДАШБОРД В СТИЛЕ MATERIO (.x5-dash)
+//  Карточки приветствия / сводки / графика / каналов. Светлая тема;
+//  тёмные эквиваленты — в блоке html.dark ниже.
+// ============================================================
+.x5-dash {
+    $card-bg: #ffffff;
+    $card-radius: 0.6rem;
+    $muted: #8a8d93;
+    $ink: #4b4b5a;
+
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+
+    .x5-row {
+        display: grid;
+        gap: 1.15rem;
+        align-items: stretch;
+    }
+    .x5-row--top    { grid-template-columns: 1fr 1.4fr; }
+    .x5-row--bottom { grid-template-columns: 1.3fr 1fr 0.7fr; }
+
+    @media (max-width: 1200px) {
+        .x5-row--top, .x5-row--bottom { grid-template-columns: 1fr; }
+    }
+
+    .x5-card {
+        background: $card-bg;
+        border-radius: $card-radius;
+        box-shadow: 0 2px 10px rgba(38, 43, 67, 0.08);
+        padding: 1.1rem 1.25rem;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .x5-card__head { margin-bottom: 0.9rem; }
+    .x5-card__title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #5d5b6f;
+        margin: 0;
+    }
+    .x5-card__hint {
+        font-size: 0.8rem;
+        color: $muted;
+    }
+
+    // --- Приветствие ---
+    .x5-card--hello {
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: space-between;
+        gap: 0.75rem;
+        background: linear-gradient(98deg, #ffffff 60%, #fff3ec 100%);
+    }
+    .x5-hello__text {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .x5-hello__title { font-size: 1.15rem; font-weight: 600; color: #2f2b3d; margin: 0 0 0.35rem; }
+    .x5-hello__sub   { font-size: 0.85rem; color: $muted; margin: 0; }
+    .x5-hello__big   { font-size: 2.1rem; font-weight: 700; color: #f97316; margin: auto 0 0.1rem; }
+    .x5-hello__note  { font-size: 0.85rem; color: $muted; margin: 0 0 0.9rem; }
+    .x5-hello__art   { font-size: 3.4rem; line-height: 1; align-self: center; }
+    .x5-btn { align-self: flex-start; }
+
+    .x5-btn {
+        display: inline-block;
+        background: #f97316;
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 0.5rem 1.1rem;
+        border-radius: 0.4rem;
+        text-decoration: none;
+        transition: background 0.15s, box-shadow 0.15s;
+        box-shadow: 0 2px 6px rgba(249, 115, 22, 0.4);
+
+        &:hover { background: #ea580c; }
+    }
+
+    // --- Сводка (плитки) ---
+    .x5-summary__grid {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        align-content: space-around;
+        gap: 1.2rem 1rem;
+    }
+    @media (max-width: 700px) {
+        .x5-summary__grid { grid-template-columns: 1fr 1fr; }
+    }
+    .x5-summary__item { display: flex; align-items: center; gap: 0.8rem; }
+    .x5-summary__icon {
+        width: 2.4rem; height: 2.4rem;
+        border-radius: 0.5rem;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--c);
+        background: color-mix(in srgb, var(--c) 14%, transparent);
+        flex: none;
+    }
+    .x5-summary__label { font-size: 0.8rem; color: $muted; }
+    .x5-summary__value { font-size: 1.25rem; font-weight: 700; color: $ink; }
+
+    // --- График ---
+    .x5-chart {
+        flex: 1;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 0.6rem;
+        min-height: 150px;
+    }
+    .x5-chart__col {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+    }
+    .x5-chart__bar-wrap {
+        flex: 1;
+        width: 100%;
+        max-width: 1.1rem;
+        display: flex;
+        align-items: flex-end;
+    }
+    .x5-chart__bar {
+        width: 100%;
+        background: linear-gradient(180deg, #fb923c 0%, #f97316 100%);
+        border-radius: 0.35rem;
+        min-height: 6px;
+        transition: opacity 0.15s;
+    }
+    .x5-chart__col:hover .x5-chart__bar { opacity: 0.8; }
+    .x5-chart__label { font-size: 0.72rem; color: $muted; margin-top: 0.5rem; text-transform: capitalize; }
+
+    .x5-chart__foot {
+        display: flex; align-items: center; gap: 0.6rem;
+        margin-top: 1rem;
+    }
+    .x5-chart__delta {
+        font-size: 0.85rem; font-weight: 600;
+        &.is-up   { color: #28c76f; }
+        &.is-down { color: #ea5455; }
+    }
+    .x5-chart__foot-text { font-size: 0.78rem; color: $muted; }
+
+    // --- Каналы ---
+    .x5-channels {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        gap: 1.1rem;
+    }
+    .x5-channel { display: flex; align-items: center; gap: 0.85rem; }
+    .x5-channel__icon {
+        width: 2.4rem; height: 2.4rem; border-radius: 0.5rem; flex: none;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--c);
+        background: color-mix(in srgb, var(--c) 14%, transparent);
+    }
+    .x5-channel__body { flex: 1; }
+    .x5-channel__row { display: flex; justify-content: space-between; margin-bottom: 0.35rem; }
+    .x5-channel__name  { font-size: 0.88rem; font-weight: 600; color: $ink; }
+    .x5-channel__count { font-size: 0.82rem; color: $muted; }
+    .x5-channel__track {
+        height: 0.4rem; border-radius: 1rem;
+        background: #ededf0; overflow: hidden;
+    }
+    .x5-channel__fill { height: 100%; border-radius: 1rem; transition: width 0.3s; }
+    .x5-empty { color: $muted; font-size: 0.85rem; }
+
+    // --- Статусы (режим обслуживания / файрвол) ---
+    .x5-status-col { display: flex; flex-direction: column; gap: 1.15rem; }
+    .x5-card--status { flex: 1; justify-content: center; gap: 0.3rem; }
+    .x5-status__icon {
+        width: 2.4rem; height: 2.4rem; border-radius: 0.5rem;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--c);
+        background: color-mix(in srgb, var(--c) 14%, transparent);
+        margin-bottom: 0.5rem;
+    }
+    .x5-status__label { font-size: 0.8rem; color: $muted; }
+    .x5-status__value { font-size: 1.3rem; font-weight: 700; color: $ink; }
+}
+
+// ============================================================
 //  ТЁМНАЯ ТЕМА (html.dark)
 //  Базовые правила выше форсят светлый фон / тёмный текст без оглядки
 //  на тему Filament. Когда панель в dark-режиме (Chrome/ОС в тёмной теме
@@ -611,4 +803,19 @@ html.dark {
 
 @keyframes app-modal-spin {
     to { transform: rotate(360deg); }
+}
+
+// --- Дашборд в тёмной теме ---
+html.dark .x5-dash {
+    .x5-card {
+        background: #2f3349;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    .x5-card--hello { background: linear-gradient(98deg, #2f3349 60%, #353a55 100%); }
+    .x5-card__title, .x5-hello__title { color: #d9dae3; }
+    .x5-card__hint, .x5-hello__sub, .x5-hello__note,
+    .x5-summary__label, .x5-chart__label, .x5-chart__foot-text,
+    .x5-channel__count, .x5-empty, .x5-status__label { color: #b3b5c0; }
+    .x5-summary__value, .x5-channel__name, .x5-status__value { color: #e7e7ee; }
+    .x5-channel__track { background: #3b3f5c; }
 }
