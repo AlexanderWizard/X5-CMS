@@ -294,6 +294,13 @@ $shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
     // overflow:hidden обрезал выпадающую панель фильтров — оставляем видимым
 }
 
+// Убираем внутренний скролл таблицы (Filament вешает overflow-x:auto на
+// контент-контейнер → появлялся скроллбар-артефакт сбоку)
+.fi-ta-content-ctn {
+    overflow: visible !important;
+}
+
+
 .fi-ta-header-cell {
     background-color: $panel-2 !important;
     font-size: 0.72rem !important;
@@ -324,12 +331,31 @@ $shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
 // подпись — «голый» текстовый узел без класса, поэтому прячем её font-size:0
 // (размер иконки фиксирован классом .fi-icon, от шрифта не зависит).
 .fi-ta-actions {
+    // Иконка-кнопка действия = квадрат с круглой подложкой при наведении.
+    // Фикс. размер + flex-центрирование, чтобы круг был ровно по центру иконки
+    // (иначе пустой текстовый узел подписи смещает его вправо).
     .fi-link,
     .fi-btn,
     .fi-ac-link-action,
-    .fi-ac-btn-action {
+    .fi-ac-btn-action,
+    .fi-icon-btn,
+    .fi-dropdown-trigger > .fi-icon-btn,
+    .fi-dropdown-trigger > button {
         font-size: 0 !important;
-        gap: 0.15rem !important;
+        gap: 0 !important;
+        width: 2rem !important;
+        height: 2rem !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 9999px !important;
+        transition: background-color 0.12s ease !important;
+
+        &:hover,
+        &:focus-visible {
+            background-color: #e5e7eb !important;
+        }
     }
 
     // Спиннер на кнопке при клике не нужен (есть центральный оверлей-лоадер):
@@ -341,6 +367,29 @@ $shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
     .fi-icon:not(.fi-loading-indicator) {
         display: block !important;
     }
+
+    // Иконки действий в таблице — чёрные (heroicon outline через currentColor)
+    .fi-icon:not(.fi-loading-indicator),
+    .fi-icon:not(.fi-loading-indicator) svg {
+        color: #000 !important;
+    }
+}
+
+// ============================================================
+//  Глобально: одинаковая тонкая обводка у ВСЕХ иконок в кнопках/действиях
+//  (heroicon outline рисуется stroke="currentColor"; дефолт 1.5 → делаем тоньше)
+// ============================================================
+.fi-btn .fi-icon:not(.fi-loading-indicator) svg,
+.fi-icon-btn .fi-icon:not(.fi-loading-indicator) svg,
+.fi-link .fi-icon:not(.fi-loading-indicator) svg,
+.fi-ta-actions .fi-icon:not(.fi-loading-indicator) svg,
+.fi-dropdown-list-item .fi-icon:not(.fi-loading-indicator) svg {
+    stroke-width: 1 !important;
+}
+
+// Глобально: размер всех иконок уменьшен на 10% (scale сохраняет центрирование/бокс)
+.fi-icon:not(.fi-loading-indicator) {
+    transform: scale(0.9) !important;
 }
 
 .fi-ta-row td {
@@ -482,6 +531,19 @@ html.dark {
 
     .fi-ta-row:hover td {
         background-color: $d-panel-2 !important;
+    }
+
+    // Круглая подложка под иконкой действия при наведении (тёмная тема)
+    .fi-ta-actions {
+        .fi-link:hover,
+        .fi-btn:hover,
+        .fi-ac-link-action:hover,
+        .fi-ac-btn-action:hover,
+        .fi-icon-btn:hover,
+        .fi-dropdown-trigger > .fi-icon-btn:hover,
+        .fi-dropdown-trigger > button:hover {
+            background-color: rgba(255, 255, 255, 0.12) !important;
+        }
     }
 
     // Секции (формы, карточки)

@@ -4,6 +4,8 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
+use Filament\Actions\Action;
+use Illuminate\Support\Facades\Blade;
 use App\Http\Middleware\CheckFirewall;
 use App\Http\Middleware\SetUserLocale;
 use Filament\Http\Middleware\Authenticate;
@@ -35,6 +37,24 @@ class AdminPanelProvider extends PanelProvider
             ->login(Login::class)
             ->profile(EditProfile::class)
             ->authGuard('admin')
+
+            // «Профиль» в меню пользователя открывает модалку (ProfileModal),
+            // а не отдельную страницу: пункт меню диспатчит Livewire-событие,
+            // по которому глобальный компонент монтирует экшен с формой.
+            ->userMenuItems([
+                'profile' => Action::make('profile')
+                    ->label(__('admin.profile.nav'))
+                    ->icon('heroicon-o-user-circle')
+                    // no-op ->action() обязателен: иначе пункт без url И без action
+                    // user-menu рендерит как НЕкликабельный заголовок ($hasProfileHeader).
+                    // alpineClickHandler ставит x-on:click и снимает дефолтный
+                    // wire:click="mountAction" (livewireClickHandlerEnabled(false)).
+                    // Без url() рендерится <button> (без SPA wire:navigate). Диспатч —
+                    // глобально через window.Livewire (не $wire: он вне scope после teleport).
+                    ->action(fn () => null)
+                    ->alpineClickHandler("window.Livewire.dispatch('open-profile-modal', { returnUrl: window.location.href })")
+                    ->sort(-1),
+            ])
 
             // Брендинг
             ->brandName('X5-CMS')
@@ -105,6 +125,12 @@ class AdminPanelProvider extends PanelProvider
                         <div class="app-modal-loader__spinner"></div>
                     </div>
                 HTML),
+            )
+
+            // Глобальный компонент с модалкой профиля (триггер — пункт меню «Профиль»).
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): HtmlString => new HtmlString(Blade::render('@livewire(\'profile-modal\')')),
             )
             ->renderHook(
                 PanelsRenderHook::SCRIPTS_AFTER,

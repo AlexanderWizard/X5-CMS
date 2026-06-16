@@ -253,7 +253,9 @@ class PageResource extends Resource
             ->recordUrl(fn (Page $record) => static::getUrl('edit', ['record' => $record]))
             ->actions([
                 Action::make('clone')
+                    ->iconButton()
                     ->label(__('admin.cms.pages.action.clone'))
+                    ->tooltip(__('admin.cms.pages.action.clone'))
                     ->icon('heroicon-o-document-duplicate')
                     ->color('gray')
                     ->requiresConfirmation()
@@ -261,7 +263,9 @@ class PageResource extends Resource
                     ->action(fn (Page $record) => self::clonePage($record)),
 
                 Action::make('open')
+                    ->iconButton()
                     ->label(__('admin.cms.pages.action.open'))
+                    ->tooltip(__('admin.cms.pages.action.open'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->color('gray')
                     ->url(fn (Page $record) => $record->url, shouldOpenInNewTab: true)

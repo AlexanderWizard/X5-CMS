@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Modules\System\Support\DatabaseTranslationLoader;
+use Filament\Support\Facades\FilamentIcon;
 use Filament\Support\Facades\FilamentTimezone;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Support\Facades\App;
@@ -31,6 +32,18 @@ class AppServiceProvider extends ServiceProvider
     {
         // MySQL 5.6 совместимость — ограничение длины строковых индексов
         Builder::defaultStringLength(191);
+
+        // Глобально: дефолтные иконки действий Filament = mini/solid (заливка, выглядят
+        // жирно). Переопределяем на outline-варианты (heroicon-o-*) — тонкие, единый вид
+        // во всех ресурсах. Толщину обводки добавляет admin.scss (stroke-width: 1).
+        FilamentIcon::register([
+            'actions::create-action'    => 'heroicon-o-plus',
+            'actions::edit-action'      => 'heroicon-o-pencil-square',
+            'actions::delete-action'    => 'heroicon-o-trash',
+            'actions::view-action'      => 'heroicon-o-eye',
+            'actions::replicate-action' => 'heroicon-o-document-duplicate',
+            'actions::action-group'     => 'heroicon-o-ellipsis-vertical',
+        ]);
 
         // Директива @partial('slug') — инклюд шаблона CMS из БД
         Blade::directive('partial', function (string $expression): string {

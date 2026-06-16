@@ -111,8 +111,8 @@ class FirewallResource extends Resource
             // Клик по строке открывает ту же модалку, что и кнопка «редактировать».
             ->recordAction('edit')
             ->actions([
-                EditAction::make()->modalWidth(Width::TwoExtraLarge),
-                DeleteAction::make(),
+                EditAction::make()->iconButton()->icon('heroicon-o-pencil-square')->modalWidth(Width::TwoExtraLarge),
+                DeleteAction::make()->iconButton()->icon('heroicon-o-trash'),
             ]);
     }
 

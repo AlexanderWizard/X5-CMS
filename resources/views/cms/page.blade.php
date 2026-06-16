@@ -9,12 +9,15 @@
     @foreach (\App\Modules\System\Models\Language::codes() as $l)
         <link rel="alternate" hreflang="{{ $l }}" href="{{ $page->urlFor($l) }}">
     @endforeach
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap">
     <style>
         :root { --accent: #ea580c; }
         * { box-sizing: border-box; }
         body {
             margin: 0;
-            font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+            font-family: Poppins, system-ui, -apple-system, "Segoe UI", sans-serif;
             color: #1f2937;
             background: #f9fafb;
             line-height: 1.6;

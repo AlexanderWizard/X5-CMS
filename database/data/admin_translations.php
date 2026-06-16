@@ -2693,6 +2693,14 @@ return array (
     'value' => 'Group',
   ),
 
+  // Профиль (модалка ProfileModal)
+  array ('group' => 'admin', 'key' => 'profile.title', 'locale' => 'ru', 'value' => 'Профиль'),
+  array ('group' => 'admin', 'key' => 'profile.title', 'locale' => 'en', 'value' => 'Profile'),
+  array ('group' => 'admin', 'key' => 'profile.nav',   'locale' => 'ru', 'value' => 'Профиль'),
+  array ('group' => 'admin', 'key' => 'profile.nav',   'locale' => 'en', 'value' => 'Profile'),
+  array ('group' => 'admin', 'key' => 'profile.saved', 'locale' => 'ru', 'value' => 'Профиль обновлён'),
+  array ('group' => 'admin', 'key' => 'profile.saved', 'locale' => 'en', 'value' => 'Profile updated'),
+
   // Клонирование страницы (PageResource)
   array ('group' => 'admin', 'key' => 'cms.pages.action.clone',  'locale' => 'ru', 'value' => 'Клонировать'),
   array ('group' => 'admin', 'key' => 'cms.pages.action.clone',  'locale' => 'en', 'value' => 'Clone'),

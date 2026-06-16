@@ -148,6 +148,7 @@ class UserResource extends Resource
             ->recordUrl(fn (User $record) => static::getUrl('edit', ['record' => $record]))
             ->actions([
                 Action::make('reset')
+                    ->iconButton()
                     ->label(__('admin.users.action.unlock'))
                     ->icon('heroicon-o-lock-open')
                     ->color('warning')

@@ -129,9 +129,9 @@ class LanguageResource extends Resource
             // Редактирование во всплывающем модальном окне (без перехода на страницу).
             ->recordAction('edit')
             ->actions([
-                EditAction::make()->modalWidth(Width::TwoExtraLarge),
+                EditAction::make()->iconButton()->icon('heroicon-o-pencil-square')->modalWidth(Width::TwoExtraLarge),
                 // Язык по умолчанию удалять нельзя (защита от потери дефолтной локали).
-                DeleteAction::make()
+                DeleteAction::make()->iconButton()->icon('heroicon-o-trash')
                     ->visible(fn (Language $record) => ! $record->is_default),
             ]);
     }

@@ -131,8 +131,8 @@ class BlockResource extends Resource
             // Редактирование во всплывающем модальном окне (клик по строке или кнопка).
             ->recordAction('edit')
             ->actions([
-                EditAction::make()->modalWidth(Width::TwoExtraLarge),
-                DeleteAction::make(),
+                EditAction::make()->iconButton()->icon('heroicon-o-pencil-square')->modalWidth(Width::TwoExtraLarge),
+                DeleteAction::make()->iconButton()->icon('heroicon-o-trash'),
             ]);
     }
 
