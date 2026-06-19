@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CheckMaintenance;
+use App\Modules\Blog\Http\Controllers\BlogController;
 use App\Modules\Cms\Http\Controllers\FeedbackController;
 use App\Modules\Cms\Http\Controllers\PageController;
 use App\Modules\System\Models\Language;
@@ -21,6 +22,12 @@ Route::middleware(CheckMaintenance::class)
     ->group(function () {
         // Главная лендинга: /en, /ru, ...
         Route::get('/', [PageController::class, 'home'])->name('cms.home');
+
+        // Блог: лента статей и отдельная статья (ДО catch-all cms.page).
+        Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+        Route::get('/blog/{slug}', [BlogController::class, 'show'])
+            ->where('slug', '[A-Za-z0-9\-_]+')
+            ->name('blog.show');
 
         // Страницы по иерархическому slug-пути: /en/about, /ru/services/web.
         Route::get('/{path}', [PageController::class, 'show'])

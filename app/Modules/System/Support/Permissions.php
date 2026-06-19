@@ -40,7 +40,17 @@ class Permissions
                     'pages'     => __('admin.cms.pages.model_plural'),
                     'templates' => __('admin.cms.templates.model_plural'),
                     'blocks'    => __('admin.cms.blocks.model_plural'),
+                    'menu'      => __('admin.cms.menu.model_plural'),
+                    'footer'    => __('admin.cms.footer.model_plural'),
                     'feedback'  => __('admin.feedback.nav'),
+                ],
+            ],
+            'blog' => [
+                'label'     => 'Blog',
+                'resources' => [
+                    'articles'   => __('admin.blog.articles.model_plural'),
+                    'categories' => __('admin.blog.categories.model_plural'),
+                    'tags'       => __('admin.blog.tags.model_plural'),
                 ],
             ],
             'system' => [
