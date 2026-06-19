@@ -40,6 +40,7 @@ class Permissions
                     'pages'     => __('admin.cms.pages.model_plural'),
                     'templates' => __('admin.cms.templates.model_plural'),
                     'blocks'    => __('admin.cms.blocks.model_plural'),
+                    'feedback'  => __('admin.feedback.nav'),
                 ],
             ],
             'system' => [

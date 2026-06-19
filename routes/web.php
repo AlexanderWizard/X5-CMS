@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CheckMaintenance;
+use App\Modules\Cms\Http\Controllers\FeedbackController;
 use App\Modules\Cms\Http\Controllers\PageController;
 use App\Modules\System\Models\Language;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,9 @@ Route::middleware(CheckMaintenance::class)
             ->where('path', '^(?!admin|api|docs|login)[A-Za-z0-9\-_/]+$')
             ->name('cms.page');
     });
+
+// Приём формы обратной связи с публичного сайта (POST, защищён CSRF из web-группы).
+Route::post('/feedback', [FeedbackController::class, 'store'])->name('cms.feedback');
 
 // URL без языка → редирект на язык по умолчанию.
 Route::get('/', fn () => redirect('/' . Language::default()));

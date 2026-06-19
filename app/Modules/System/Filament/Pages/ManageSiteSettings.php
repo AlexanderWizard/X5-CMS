@@ -37,10 +37,11 @@ class ManageSiteSettings extends Page
         'seo_title_suffix', 'seo_default_description', 'seo_default_keywords', 'seo_index',
         'analytics_head', 'analytics_body',
         'maintenance_mode', 'maintenance_message', 'contact_email',
+        'feedback_enabled', 'feedback_limit_per_hour', 'feedback_limit_per_ip',
     ];
 
     /** Булевы ключи (хранятся как '1'/'0'). */
-    private const BOOL_KEYS = ['seo_index', 'maintenance_mode'];
+    private const BOOL_KEYS = ['seo_index', 'maintenance_mode', 'feedback_enabled'];
 
     /** Файловые ключи (значение — путь на диске public). */
     private const FILE_KEYS = ['site_logo', 'site_favicon'];
@@ -172,6 +173,27 @@ class ManageSiteSettings extends Page
                                     ->email()
                                     ->maxLength(191),
                             ]),
+
+                        Tab::make(__('admin.settings.tab.feedback'))
+                            ->schema([
+                                Forms\Components\Toggle::make('feedback_enabled')
+                                    ->label(__('admin.settings.field.feedback_enabled'))
+                                    ->helperText(__('admin.settings.field.feedback_enabled_hint'))
+                                    ->columnSpanFull(),
+                                Forms\Components\TextInput::make('feedback_limit_per_hour')
+                                    ->label(__('admin.settings.field.feedback_limit_per_hour'))
+                                    ->helperText(__('admin.settings.field.feedback_limit_hint'))
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->default(0),
+                                Forms\Components\TextInput::make('feedback_limit_per_ip')
+                                    ->label(__('admin.settings.field.feedback_limit_per_ip'))
+                                    ->helperText(__('admin.settings.field.feedback_limit_hint'))
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->default(0),
+                            ])
+                            ->columns(2),
 
                         Tab::make(__('admin.settings.tab.custom'))
                             ->schema([
