@@ -4,6 +4,8 @@ namespace App\Modules\Cms\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Cms\Models\Page;
+use App\Modules\Cms\Support\FrontCache;
+use App\Modules\Cms\Support\TemplateRenderer;
 use App\Modules\System\Models\Setting;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
@@ -51,12 +53,90 @@ class PageController extends Controller
 
     private function render(Page $page): View|Response
     {
-        $children = $page->children()->where('is_active', 1)->get();
+        $locale = app()->getLocale();
 
-        $data = [
+        // Полностраничный HTML-кэш — только для «статичных» страниц (без CSRF/
+        // old()/$errors/session в цепочке шаблона). Динамические (форма обратной
+        // связи на главной) рендерим каждый раз, чтобы не заморозить токен/валидацию.
+        if ($this->cacheable($page)) {
+            // host+scheme в ключе: HTML содержит абсолютные URL (url()/asset()),
+            // привязанные к хосту запроса. Без этого рендер под другим хостом
+            // (CLI/tinker = localhost, второй домен, http/https) отравил бы кэш.
+            $origin = request()->getSchemeAndHttpHost();
+
+            $html = FrontCache::remember(
+                "page.{$page->id}.{$locale}." . md5($origin),
+                fn () => $this->html($page, $locale),
+            );
+
+            return response($html);
+        }
+
+        return $this->renderFresh($page, $locale);
+    }
+
+    /**
+     * Можно ли отдавать готовый HTML страницы из кэша.
+     */
+    private function cacheable(Page $page): bool
+    {
+        if (!FrontCache::enabled()) {
+            return false;
+        }
+
+        // Нет шаблона/тела — рендерится статичный fallback-view, кэшируем.
+        if (!$page->template || blank($page->template->body)) {
+            return true;
+        }
+
+        $slug = $page->template->slug;
+
+        // Результат детектора зависит только от тел шаблонов — кэшируем его тоже.
+        return !FrontCache::remember(
+            "dyn.{$slug}",
+            fn () => TemplateRenderer::chainIsDynamic($slug),
+        );
+    }
+
+    /**
+     * Свежий рендер страницы (без HTML-кэша).
+     */
+    private function renderFresh(Page $page, string $locale): View|Response
+    {
+        $data = $this->data($page, $locale);
+
+        if ($page->template && filled($page->template->body)) {
+            return response(Blade::render($page->template->body, $data));
+        }
+
+        return view('cms.page', $data);
+    }
+
+    /**
+     * Готовый HTML страницы строкой (для записи в кэш).
+     */
+    private function html(Page $page, string $locale): string
+    {
+        $data = $this->data($page, $locale);
+
+        if ($page->template && filled($page->template->body)) {
+            return Blade::render($page->template->body, $data);
+        }
+
+        return view('cms.page', $data)->render();
+    }
+
+    /**
+     * Переменные, доступные шаблону страницы.
+     *
+     * @return array<string, mixed>
+     */
+    private function data(Page $page, string $locale): array
+    {
+        return [
             'page'            => $page,
-            'children'        => $children,
-            'locale'          => app()->getLocale(),
+            'children'        => $page->children()->where('is_active', 1)->get(),
+            'locale'          => $locale,
             'title'           => $page->tr('title'),
             'content'         => $page->tr('content'),
             'metaTitle'       => $page->tr('meta_title'),
@@ -65,15 +145,5 @@ class PageController extends Controller
             'appName'         => Setting::get('site_name', config('app.name', 'Site')),
             'settings'        => Setting::allValues(),
         ];
-
-        // Если у страницы есть шаблон с телом — рендерим его Blade-разметку.
-        if ($page->template && filled($page->template->body)) {
-            $html = Blade::render($page->template->body, $data);
-
-            return response($html);
-        }
-
-        // Иначе — встроенный шаблон по умолчанию.
-        return view('cms.page', $data);
     }
 }

@@ -86,13 +86,24 @@ class AdminPanelProvider extends PanelProvider
                 fn (): HtmlString => new HtmlString(<<<'HTML'
                     <script>
                         (function () {
+                            // Стор сайдбара Filament хранит свёрнутые группы в collapsedGroups,
+                            // объявленном как $persist(null) — т.е. при первом заходе это NULL.
+                            // Его же методы groupIsCollapsed/toggleCollapsedGroup зовут
+                            // .includes()/.concat() без проверки на null и падают → группы
+                            // вообще не сворачиваются. Гарантируем массив и сворачиваем
+                            // неактивные группы (раскрыта только активная).
                             function syncSidebarGroups() {
                                 var store = window.Alpine && window.Alpine.store('sidebar');
-                                if (! store) return;
+                                if (! store) return false;
+
+                                if (! Array.isArray(store.collapsedGroups)) {
+                                    store.collapsedGroups = [];
+                                }
 
                                 var groups = document.querySelectorAll(
                                     '.fi-main-sidebar .fi-sidebar-group[data-group-label]'
                                 );
+                                if (! groups.length) return false;
 
                                 var collapsed = [];
                                 groups.forEach(function (group) {
@@ -102,14 +113,18 @@ class AdminPanelProvider extends PanelProvider
                                 });
 
                                 store.collapsedGroups = collapsed;
+                                return true;
                             }
 
-                            document.addEventListener('alpine:initialized', function () {
-                                requestAnimationFrame(syncSidebarGroups);
-                            });
-                            document.addEventListener('livewire:navigated', function () {
-                                requestAnimationFrame(syncSidebarGroups);
-                            });
+                            // Стор регистрируется Filament-ом не всегда к моменту
+                            // alpine:initialized — повторяем по кадрам, пока не готов.
+                            function ensure(retries) {
+                                if (syncSidebarGroups() || retries <= 0) return;
+                                requestAnimationFrame(function () { ensure(retries - 1); });
+                            }
+
+                            document.addEventListener('alpine:initialized', function () { ensure(20); });
+                            document.addEventListener('livewire:navigated', function () { ensure(20); });
                         })();
                     </script>
                 HTML),
@@ -190,6 +205,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Modules/Api/Filament/Resources'), for: 'App\Modules\Api\Filament\Resources')
             ->discoverResources(in: app_path('Modules/Cms/Filament/Resources'), for: 'App\Modules\Cms\Filament\Resources')
             ->discoverResources(in: app_path('Modules/Blog/Filament/Resources'), for: 'App\Modules\Blog\Filament\Resources')
+            ->discoverResources(in: app_path('Modules/Gallery/Filament/Resources'), for: 'App\Modules\Gallery\Filament\Resources')
             ->discoverResources(in: app_path('Modules/System/Filament/Resources'), for: 'App\Modules\System\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->discoverPages(in: app_path('Modules/System/Filament/Pages'), for: 'App\Modules\System\Filament\Pages')

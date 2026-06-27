@@ -78,6 +78,9 @@ class Page extends Model
         return Language::isValid($locale) ? $locale : Language::default();
     }
 
+    /** @var array<int, array<int, string>> старые пути поддерева до смены slug (id → path) */
+    protected static array $redirectFrom = [];
+
     protected static function booted(): void
     {
         // Главная страница может быть только одна — снимаем флаг с остальных.
@@ -89,6 +92,51 @@ class Page extends Model
                     ->update(['is_home' => 0]);
             }
         });
+
+        // Смена slug ломает старый URL (и URL всех потомков) — фиксируем старые
+        // пути до записи, после записи заводим 301-редиректы old → new.
+        static::updating(function (Page $page): void {
+            if ($page->exists && $page->isDirty('slug')) {
+                static::$redirectFrom[$page->id] = $page->subtreePaths();
+            }
+        });
+
+        static::updated(function (Page $page): void {
+            $old = static::$redirectFrom[$page->id] ?? null;
+
+            if ($old === null) {
+                return;
+            }
+
+            unset(static::$redirectFrom[$page->id]);
+
+            $new = $page->fresh()?->subtreePaths() ?? [];
+
+            foreach ($old as $id => $oldPath) {
+                $newPath = $new[$id] ?? null;
+
+                if ($newPath !== null && $oldPath !== '' && $oldPath !== $newPath) {
+                    Redirect::capture($oldPath, $newPath);
+                }
+            }
+        });
+    }
+
+    /**
+     * Карта путей страницы и всех её потомков: [id => path]. Берётся из текущего
+     * состояния БД (до/после сохранения — для построения 301-редиректов).
+     *
+     * @return array<int, string>
+     */
+    public function subtreePaths(): array
+    {
+        $map = [];
+
+        foreach (static::query()->whereIn('id', $this->descendantIds())->get() as $node) {
+            $map[$node->id] = $node->path;
+        }
+
+        return $map;
     }
 
     public function parent(): BelongsTo

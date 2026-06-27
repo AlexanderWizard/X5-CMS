@@ -34,17 +34,18 @@ class ManageSiteSettings extends Page
     /** Все ключи настроек, которыми управляет форма. */
     public const KEYS = [
         'site_name', 'site_tagline', 'site_logo', 'site_favicon',
-        'seo_title_suffix', 'seo_default_description', 'seo_default_keywords', 'seo_index',
+        'seo_title_suffix', 'seo_default_description', 'seo_default_keywords', 'seo_index', 'seo_og_image',
         'analytics_head', 'analytics_body',
         'maintenance_mode', 'maintenance_message', 'contact_email',
         'feedback_enabled', 'feedback_limit_per_hour', 'feedback_limit_per_ip',
+        'front_cache',
     ];
 
     /** Булевы ключи (хранятся как '1'/'0'). */
-    private const BOOL_KEYS = ['seo_index', 'maintenance_mode', 'feedback_enabled'];
+    private const BOOL_KEYS = ['seo_index', 'maintenance_mode', 'feedback_enabled', 'front_cache'];
 
     /** Файловые ключи (значение — путь на диске public). */
-    private const FILE_KEYS = ['site_logo', 'site_favicon'];
+    private const FILE_KEYS = ['site_logo', 'site_favicon', 'seo_og_image'];
 
     public static function getNavigationLabel(): string
     {
@@ -138,6 +139,15 @@ class ManageSiteSettings extends Page
                                 Forms\Components\Toggle::make('seo_index')
                                     ->label(__('admin.settings.field.seo_index'))
                                     ->helperText(__('admin.settings.field.seo_index_hint')),
+                                Forms\Components\FileUpload::make('seo_og_image')
+                                    ->label(__('admin.settings.field.seo_og_image'))
+                                    ->helperText(__('admin.settings.field.seo_og_image_hint'))
+                                    ->image()
+                                    ->disk('public')
+                                    ->directory('settings')
+                                    ->visibility('public')
+                                    ->maxSize(2048)
+                                    ->columnSpanFull(),
                             ])
                             ->columns(2),
 
@@ -194,6 +204,40 @@ class ManageSiteSettings extends Page
                                     ->default(0),
                             ])
                             ->columns(2),
+
+                        Tab::make(__('admin.settings.tab.cache'))
+                            ->schema([
+                                Forms\Components\Toggle::make('front_cache')
+                                    ->label(__('admin.settings.field.front_cache'))
+                                    ->helperText(__('admin.settings.field.front_cache_hint'))
+                                    ->columnSpanFull(),
+                                Forms\Components\Placeholder::make('cache_status')
+                                    ->label(__('admin.settings.field.cache_status'))
+                                    ->content(fn (): string => __('admin.settings.field.cache_status_value', [
+                                        'gen' => \App\Modules\Cms\Support\FrontCache::version(),
+                                    ]))
+                                    ->columnSpanFull(),
+                                Actions::make([
+                                    Action::make('flush_cache')
+                                        ->label(__('admin.settings.cache.flush'))
+                                        ->icon('heroicon-o-trash')
+                                        ->color('danger')
+                                        ->requiresConfirmation()
+                                        ->action(function (): void {
+                                            abort_unless(
+                                                auth('admin')->user()?->hasPermissionTo('system.settings.update'),
+                                                403,
+                                            );
+
+                                            \App\Modules\Cms\Support\FrontCache::flush();
+
+                                            Notification::make()
+                                                ->success()
+                                                ->title(__('admin.settings.cache.flushed'))
+                                                ->send();
+                                        }),
+                                ])->columnSpanFull(),
+                            ]),
 
                         Tab::make(__('admin.settings.tab.custom'))
                             ->schema([

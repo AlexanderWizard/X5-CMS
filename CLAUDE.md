@@ -224,6 +224,140 @@ Builder::defaultStringLength(191);
   только админов с правом `cms.templates`. Контент страницы выводится как HTML (`{!! $content !!}`)
   — право `cms.pages`. Менее доверенным ролям эти права не выдавать (нужна изоляция/санитизация).
 
+### SEO-выхлоп
+
+**`App\Modules\Cms\Http\Controllers\SeoController`**, роуты в `routes/web.php` (БЕЗ языкового префикса):
+- `GET /sitemap.xml` (`seo.sitemap`) — каждый URL по всем активным языкам с `xhtml:link hreflang`
+  + `x-default`, `lastmod`. Кэшируется через FrontCache (ключ с хостом), сбрасывается на правках.
+  **Ссылки собираются из модулей через реестр `App\Modules\Cms\Support\Sitemap\Sitemap`** (без
+  прямых зависимостей контроллера на модули):
+  - `SitemapSource` (интерфейс, метод `entries(): iterable<SitemapUrl>`), `SitemapUrl`
+    (`Closure(locale):string $loc` + `$lastmod`).
+  - `Sitemap::sources()` — авто-обнаружение по соглашению: `glob('app/Modules/*/Sitemap/*.php')`,
+    берёт классы, реализующие `SitemapSource` (как `discoverResources` в Filament). Мемоизация на запрос.
+  - Поставщики: `App\Modules\Cms\Sitemap\PageSitemap` (страницы), `App\Modules\Blog\Sitemap\BlogSitemap`
+    (лента + статьи). **Удаление модуля убирает его папку `Sitemap/` → его URL просто исчезают из карты,
+    ядро не падает** (проверено: без `BlogSitemap` карта отдаёт 200 без блога). Сбойный поставщик
+    оборачивается try/catch и не роняет всю карту.
+- `GET /robots.txt` (`seo.robots`) — динамический: `maintenance_mode` ИЛИ `seo_index=false` → `Disallow: /`,
+  иначе `Disallow: /admin|/api|/docs` + `Sitemap:`. ⚠️ Статический `public/robots.txt` УДАЛЁН
+  (иначе Apache отдавал бы его до Laravel).
+- **canonical / Open Graph / Twitter / `meta robots`** — в системном шаблоне `head` (пропатчен
+  миграцией `..._seo_meta_and_redirects`, идемпотентно). `og:image` берётся из настройки `seo_og_image`
+  (SEO-вкладка настроек, FileUpload). `noindex,nofollow` рендерится при `seo_index=false`.
+
+### Редиректы 301/302 (`redirects`)
+
+- Таблица `redirects` (`from_path`/`to_path` — пути БЕЗ языка и ведущего слэша, `status`, `is_active`,
+  `hits`). Модель `App\Modules\Cms\Models\Redirect`: `activeMap()` (мапа правил, устойчива к отсутствию
+  таблицы), `capture($from,$to)` (сшивает цепочки A→B→C, не плодит петли).
+- Middleware `App\Http\Middleware\HandleRedirects` — ПЕРВЫМ в языковой группе (до `CheckMaintenance`):
+  разбирает `{locale}/{rest}`, ищет `rest` в `activeMap()`, отдаёт `redirect()->to(/{locale}/{to}, status)`,
+  инкрементит `hits`. Slug страниц общий для всех локалей → одно правило работает во всех языках.
+- **Авто-захват:** `Page` на смене `slug` (`updating`/`updated`) фиксирует старые пути поддерева
+  (`subtreePaths()` — страница + потомки) и заводит 301 old→new для каждого изменившегося пути.
+  Решает «сменили slug → старый URL стал 404».
+- `RedirectResource` (CMS, sort 6, модалки, permissionPrefix `cms.redirects`, в дереве прав).
+
+### Кэш публичного фронта (`App\Modules\Cms\Support\FrontCache`)
+
+Конфиг `config/cms.php`: `front_cache` (env `CMS_FRONT_CACHE`, default true),
+`front_cache_ttl` (default 86400). Store по умолчанию — `database` (таблица `cache`).
+
+Подход — **«поколение» (version)**: все ключи содержат `cms.front.v{N}.…`; сброс всего кэша =
+bump `N` (`Cache::forever('cms.front.ver', N+1)`), старые ключи становятся недостижимы и гаснут по TTL.
+Теги не используются (их не поддерживает database-store). Сброс делает `FrontCache::flush()`.
+
+**Два уровня:**
+1. **Поиск тел шаблонов / значений блоков по slug** (`TemplateRenderer::body()`/`block()`) — снимает
+   повторные запросы в БД на каждый `@partial`/`@block`. Рендер остаётся живым → CSRF и пр.
+   per-request данные НЕ замораживаются. Request-мемоизация (`$bodyCache`/`$blockCache`) поверх FrontCache.
+2. **Полностраничный HTML** (`PageController::render`) — **только для «статичных» страниц**.
+   `TemplateRenderer::chainIsDynamic($slug)` рекурсивно сканирует тело + все `@partial` на маркеры
+   `@csrf`/`csrf_token`/`old(`/`$errors`/`session(`; если найдены — страница НЕ кэшируется целиком
+   (главная с формой обратной связи). Ключ `page.{id}.{locale}.{md5(host+scheme)}`,
+   результат детектора — `dyn.{slug}`. ⚠️ **host+scheme в ключе обязателен:** HTML содержит
+   абсолютные URL (`url()`/`asset()`), привязанные к хосту запроса — без этого рендер под другим
+   хостом (CLI/tinker = `localhost`, второй домен, http/https) отравил бы кэш чужими ссылками.
+
+**Инвалидация:** `FrontCache::listen()` в `AppServiceProvider::boot` вешает `saved`/`deleted` →
+`flush()` на Page, Template, Block, MenuItem, FooterColumn, FooterLink, Setting, Language.
+Любая правка контента в админке сбрасывает весь фронт-кэш автоматически.
+
+**Управление в админке:** «Настройки сайта» → вкладка **«Кэш»** (`ManageSiteSettings`):
+тумблер `front_cache` (настройка-источник правды для `FrontCache::enabled()`, дефолт —
+`config('cms.front_cache')`), показ текущего поколения и кнопка **«Сбросить кэш»**
+(`FrontCache::flush()`, под правом `system.settings.update`). Сид настройки + переводы вкладки —
+миграция `..._front_cache_setting_and_translations.php`.
+
+## Модуль «Галерея» (app/Modules/Gallery)
+
+Фотогалерея — порт модуля Gallery с alexanderwizard.com, адаптированный под
+Laravel+Filament. Альбомы + фотографии с EXIF, серверная генерация превью на GD.
+
+**Таблицы** (миграция `..._create_gallery_tables.php`, типы под MySQL 5.6 — `i18n` = `LONGTEXT`, не JSON):
+- `gallery_albums`: id, title, slug(unique), description, i18n(LONGTEXT/array),
+  photos_count, is_active, sort_order, created_at, updated_at. Модель
+  `App\Modules\Gallery\Models\Album` (`HasI18n`, `LogsActivity`, `I18N_FIELDS=['title','description']`).
+  `activePhotos()`, `refreshCounter()` (saveQuietly — пересчёт счётчика + updated_at),
+  scope `activeFeed()`, `getUrlAttribute` → `/{locale}/gallery/{slug}`.
+- `gallery_photos`: id, album_id(FK CASCADE), path, title, tags, i18n, width, height,
+  size, camera, lens, shutter_speed, focal_length, iso, taken_at, year, is_active,
+  **views** (счётчик просмотров), sort_order, created_at. Модель `App\Modules\Gallery\Models\Photo`
+  (`HasI18n`, `LogsActivity`). `path` = базовый путь варианта на диске `gallery` БЕЗ расширения
+  (`{album_id}/{id}`); файлы: `{path}.jpg` (1680², лайтбокс), `_med.jpg` (≤1080, НЕ обрезан —
+  masonry-сетка), `_tmb.jpg` (квадрат 600², обложки), `_tmb2.jpg` (квадрат 96², лента).
+  Аксессоры `image_url`/`med_url`/`thumb_url`/`micro_url` (Storage::url), `url` (страница фото),
+  `aspectRatio()` (для masonry без сдвига), `viewsLabel()` (1.2k/3.4M), `isPortrait()`, `tagList()`.
+  События: `created`/`deleted` → `album->refreshCounter()`, `deleted` → `deleteFiles()`.
+
+**Обработка изображений (`App\Modules\Gallery\Support`):**
+- `ImageProcessor` (GD) — `fitJpeg()` (вписать в бокс, без обрезки), `squareThumbnail()`
+  (квадрат по центру), `dimensions()`. Тихо возвращает false без GD/битого файла.
+- `Exif` — `read()` нормализует EXIF (камера/объектив/выдержка/диафрагма/ISO/дата); устойчив
+  к отсутствию расширения `exif`.
+- `PhotoUploader::ingest(Album, $sourcePath)` — создаёт запись Photo (сначала, чтобы id = имя
+  файла), генерирует 4 варианта (jpg/_med/_tmb/_tmb2) в `{album_id}/{id}`, дописывает EXIF.
+
+⚠️ **Хранилище файлов — диск `gallery` = `public/uploads/gallery`** (config/filesystems.php),
+URL относительный `/uploads/gallery/...`. НЕ `storage/app/public`: на Windows/OpenServer symlink
+`public/storage` — это MSYS-symlink с Unix-целью, который Apache не разворачивает (битые превью).
+Файлы лежат прямо под `public/` (как в оригинале alexanderwizard.com `public/uploads/photos`),
+веб-сервер отдаёт их напрямую. Относительный URL ещё и хост-независим (хорошо для FrontCache).
+
+**Админка (Filament, группа «Gallery»):**
+- `AlbumResource` (sort 1, permissionPrefix `gallery.albums`) — модальный CRUD (только `index`
+  в getPages), вкладки по языкам (title/description i18n), slug-автоген; экшены строки:
+  «фото» (→ PhotoResource с фильтром по альбому), «открыть на сайте», edit/delete.
+- `PhotoResource` (sort 2, permissionPrefix `gallery.photos`) — модальный edit (album/caption
+  i18n/tags/is_active), ImageColumn-превью, фильтр по альбому. **Массовая загрузка**:
+  `PhotoResource::uploadAction()` в шапке списка (`ListPhotos`) — Select альбома +
+  `FileUpload->multiple()` (диск `gallery`, `_tmp`); в `->action()` каждый файл →
+  `PhotoUploader::ingest()`, временный исходник удаляется.
+
+**Публичный фронт (редизайн в духе 500px/Unsplash):** `GalleryController` —
+- `index` — **discover-стена**: masonry обложек альбомов (обложка = свежее фото `_med`).
+- `album` — **masonry-сетка** (CSS-колонки, кадры не режутся) + **бесконечная подгрузка**:
+  при `?partial=1&page=N` отдаёт ТОЛЬКО плитки (partial `gallery._tiles`, без лейаута),
+  фронт догружает через `IntersectionObserver`. PER_PAGE=30. Клик по плитке → **клиентский
+  лайтбокс** (без перезагрузки): крупный кадр + EXIF-панель + prev/next + клавиатура (`←`/`→`/`Esc`)
+  + счётчик; данные берутся из `data-*` плитки, при открытии — ping `gallery.photo.view`.
+- `photo` — **иммерсивная shareable-страница** (Open Graph/Twitter), инкрементит `views`;
+  крупный кадр + EXIF-сайдбар + лента соседних кадров. Используется для deep-link/SEO.
+- `viewPing` (`GET /gallery/{slug}/{id}/v` → 204) — лёгкий инкремент просмотров из лайтбокса
+  (GET без CSRF; `increment` без модельных событий → НЕ сбрасывает FrontCache).
+
+Роуты в языковой группе ДО catch-all `cms.page`: `/{locale}/gallery`, `/gallery/{slug}`,
+`/gallery/{slug}/{id}/v` (ping, ДО фото), `/gallery/{slug}/{id}`. Вьюхи
+`resources/views/gallery/{albums,album,photo,_tiles}.blade.php`; логика лайтбокса и infinite
+scroll — `public/js/gallery.js` (vanilla, без зависимостей; подключается с `?v=filemtime`).
+Стили — секция «Галерея — редизайн» в `landing.scss` (классы `gl-*`). Галерея НЕ кэшируется
+целиком (контроллер не использует FrontCache page-level), просмотры всегда свежие.
+
+**Интеграции:** `GallerySitemap` (Sitemap-реестр), Album/Photo в `FrontCache::BUSTERS`,
+ветка `gallery` в `Permissions::tree()`, `discoverResources` для Gallery в `AdminPanelProvider`,
+строки UI — миграция `..._seed_gallery_translations.php` (ключи `gallery.*`).
+
 ### Таблица `users`
 
 | Колонка         | Тип          | Default           | Описание                     |

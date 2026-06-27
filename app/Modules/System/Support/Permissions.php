@@ -42,6 +42,7 @@ class Permissions
                     'blocks'    => __('admin.cms.blocks.model_plural'),
                     'menu'      => __('admin.cms.menu.model_plural'),
                     'footer'    => __('admin.cms.footer.model_plural'),
+                    'redirects' => __('admin.cms.redirects.model_plural'),
                     'feedback'  => __('admin.feedback.nav'),
                 ],
             ],
@@ -51,6 +52,13 @@ class Permissions
                     'articles'   => __('admin.blog.articles.model_plural'),
                     'categories' => __('admin.blog.categories.model_plural'),
                     'tags'       => __('admin.blog.tags.model_plural'),
+                ],
+            ],
+            'gallery' => [
+                'label'     => 'Gallery',
+                'resources' => [
+                    'albums' => __('admin.gallery.albums.model_plural'),
+                    'photos' => __('admin.gallery.photos.model_plural'),
                 ],
             ],
             'system' => [

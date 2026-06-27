@@ -47,6 +47,18 @@ return [
             'report' => false,
         ],
 
+        // Файлы галереи лежат напрямую в public/uploads/gallery (без symlink —
+        // на Windows/OpenServer symlink public/storage веб-сервером не отдаётся).
+        // URL относительный: /uploads/gallery/... (хост-независимый).
+        'gallery' => [
+            'driver' => 'local',
+            'root' => public_path('uploads/gallery'),
+            'url' => '/uploads/gallery',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

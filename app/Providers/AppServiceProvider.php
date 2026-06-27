@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Modules\Cms\Support\FrontCache;
 use App\Modules\System\Support\DatabaseTranslationLoader;
 use Filament\Support\Facades\FilamentIcon;
 use Filament\Support\Facades\FilamentTimezone;
@@ -32,6 +33,10 @@ class AppServiceProvider extends ServiceProvider
     {
         // MySQL 5.6 совместимость — ограничение длины строковых индексов
         Builder::defaultStringLength(191);
+
+        // Инвалидация фронт-кэша CMS: изменение контента (страницы, шаблоны,
+        // блоки, меню, футер, настройки, языки) bump-ает поколение кэша.
+        FrontCache::listen();
 
         // Глобально: дефолтные иконки действий Filament = mini/solid (заливка, выглядят
         // жирно). Переопределяем на outline-варианты (heroicon-o-*) — тонкие, единый вид
